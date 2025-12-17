@@ -1,0 +1,84 @@
+export enum ViewState {
+  LOGIN = 'LOGIN',
+  DASHBOARD = 'DASHBOARD',
+  ROADMAP = 'ROADMAP',
+  COURSES = 'COURSES',
+  RESUME = 'RESUME',
+  CHAT = 'CHAT',
+  ROLE_INTEL = 'ROLE_INTEL',
+  SAVED_ITEMS = 'SAVED_ITEMS',
+  JOB_SEARCH = 'JOB_SEARCH',
+  PROFILE = 'PROFILE'
+}
+
+export interface UserProfile {
+  name: string;
+  email: string;
+  targetRole: string;
+  skills: string;
+  joinedDate: number;
+  avatarColor?: string;
+}
+
+export interface Resource {
+  title: string;
+  link: string;
+}
+
+export interface WeeklyPlan {
+  week: number;
+  topic: string;
+  resources: Resource[];
+  project: string;
+}
+
+export interface RoadmapResponse {
+  role: string;
+  duration_weeks: number;
+  weekly_plan: WeeklyPlan[];
+}
+
+export interface SavedRoadmap extends RoadmapResponse {
+  id: string;
+  timestamp: number;
+}
+
+export interface Course {
+  title: string;
+  platform: string;
+  duration: string;
+  difficulty: string;
+  link: string;
+  reason: string;
+}
+
+export interface SavedCourse extends Course {
+  id: string;
+  timestamp: number;
+}
+
+export interface CourseResponse {
+  courses: Course[];
+}
+
+export interface SkillAnalysisResponse {
+  skills_identified: string[];
+  missing_skills: string[];
+  suggested_roles: string[];
+  improvement_plan: string[];
+}
+
+export interface JobRoleResponse {
+  role: string;
+  overview: string;
+  required_skills: string[];
+  salary_range: string;
+  responsibilities: string[];
+  roadmap_summary: string[];
+}
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  content: string;
+  timestamp: number;
+}
