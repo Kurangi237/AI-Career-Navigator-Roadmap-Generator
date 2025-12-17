@@ -1,8 +1,80 @@
 import { UserProfile } from "../types";
 
 const USER_KEY = 'kare26_user_profile';
+const USERS_KEY = 'kare26_registered_users';
 
-export const loginUser = (name: string, email: string): UserProfile => {
+interface RegisteredUser {
+  email: string;
+  password: string;
+  name: string;
+  createdAt: number;
+  avatarImage?: string;
+}
+
+export const loginUser = (name: string, email: string, password: string): UserProfile => {
+  // Check fixed demo credentials first
+  const validCredentials = [
+    { email: 'admin@kare26.com', password: 'password123', name: 'Admin User' },
+    { email: 'student@kare26.com', password: 'student123', name: 'Student User' },
+    { email: 'demo@kare26.com', password: 'demo123', name: 'Demo User' }
+  ];
+
+  const validDemoUser = validCredentials.find(cred => cred.email === email && cred.password === password);
+  
+  if (validDemoUser) {
+    // Use the provided name if it matches the valid user's name, otherwise use the valid user's name
+    const userName = name.trim() === validDemoUser.name ? name : validDemoUser.name;
+    return createAndSaveUser(userName, email);
+  }
+
+  // Check registered users
+  const registeredUsers = getRegisteredUsers();
+  const registeredUser = registeredUsers.find(user => user.email === email && user.password === password);
+  
+  if (!registeredUser) {
+    throw new Error('Invalid email or password');
+  }
+
+  return createAndSaveUser(registeredUser.name, email, registeredUser.avatarImage);
+};
+
+export const createUser = (name: string, email: string, password: string): UserProfile => {
+  const registeredUsers = getRegisteredUsers();
+  
+  // Check if email already exists
+  if (registeredUsers.some(user => user.email === email)) {
+    throw new Error('Email already registered');
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    throw new Error('Invalid email format');
+  }
+
+  // Validate password strength (minimum 6 characters)
+  if (password.length < 6) {
+    throw new Error('Password must be at least 6 characters long');
+  }
+
+  // Register the new user
+  const newUser: RegisteredUser = {
+    email,
+    password,
+    name: name.trim(),
+    createdAt: Date.now()
+  };
+
+  registeredUsers.push(newUser);
+  localStorage.setItem(USERS_KEY, JSON.stringify(registeredUsers));
+
+  return createAndSaveUser(name.trim(), email, newUser.avatarImage);
+};
+
+const createAndSaveUser = (name: string, email: string, avatarImage?: string): UserProfile => {
+  // Check if user already exists in localStorage to preserve their data
+  const existingUser = getCurrentUser();
+  
   const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
   const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
@@ -12,11 +84,18 @@ export const loginUser = (name: string, email: string): UserProfile => {
     targetRole: 'Software Engineer', // Default
     skills: '',
     joinedDate: Date.now(),
-    avatarColor: randomColor
+    avatarColor: randomColor,
+    // Use provided avatarImage first, then existing, then undefined
+    avatarImage: avatarImage || existingUser?.avatarImage || undefined
   };
 
   localStorage.setItem(USER_KEY, JSON.stringify(newUser));
   return newUser;
+};
+
+const getRegisteredUsers = (): RegisteredUser[] => {
+  const data = localStorage.getItem(USERS_KEY);
+  return data ? JSON.parse(data) : [];
 };
 
 export const logoutUser = (): void => {
@@ -34,5 +113,16 @@ export const updateUserProfile = (updatedData: Partial<UserProfile>): UserProfil
 
   const updated = { ...current, ...updatedData };
   localStorage.setItem(USER_KEY, JSON.stringify(updated));
+  
+  // Also update the registered user storage if avatarImage was updated
+  if (updatedData.avatarImage) {
+    const registeredUsers = getRegisteredUsers();
+    const userIndex = registeredUsers.findIndex(user => user.email === updated.email);
+    if (userIndex !== -1) {
+      registeredUsers[userIndex].avatarImage = updatedData.avatarImage;
+      localStorage.setItem(USERS_KEY, JSON.stringify(registeredUsers));
+    }
+  }
+  
   return updated;
 };

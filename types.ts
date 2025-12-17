@@ -18,6 +18,7 @@ export interface UserProfile {
   skills: string;
   joinedDate: number;
   avatarColor?: string;
+  avatarImage?: string;
 }
 
 export interface Resource {

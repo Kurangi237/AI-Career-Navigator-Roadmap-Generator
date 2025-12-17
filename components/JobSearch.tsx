@@ -108,7 +108,7 @@ const JobSearch: React.FC<Props> = ({ onBack }) => {
         </div>
         <p className="text-slate-600">
           Curated list of <strong>{JOB_SOURCES.length}</strong> official career pages. 
-          Stop searching randomly—apply directly to the source.
+          Stop searching randomly apply directly to the source.
         </p>
 
         {/* Search & Filter */}

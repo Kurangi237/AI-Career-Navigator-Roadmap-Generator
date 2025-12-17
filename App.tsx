@@ -18,7 +18,7 @@ const Dashboard: React.FC<{ setView: (v: ViewState) => void, user: UserProfile }
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-10 text-center">
       <h1 className="text-4xl md:text-5xl font-extrabold text-[#2f8d46] mb-4">Hello, {user.name.split(' ')[0]}! 👋</h1>
       <p className="text-slate-600 max-w-2xl mx-auto text-xl leading-relaxed">
-        Welcome to your KARE26 student dashboard. Ready to upgrade your career today?
+        Welcome to your AI Career Navigator & Roadmap Generator dashboard. Ready to upgrade your career today?
       </p>
     </div>
 
@@ -146,7 +146,7 @@ const App: React.FC = () => {
       </main>
       
       <footer className="bg-slate-900 text-slate-400 py-6 text-center text-sm mt-auto">
-        <p>© 2025 KARE26 Students. Powered by Career Path AI.</p>
+        <p>© 2025 Powered by AI Career Navigator & Roadmap Generator.</p>
       </footer>
     </div>
   );

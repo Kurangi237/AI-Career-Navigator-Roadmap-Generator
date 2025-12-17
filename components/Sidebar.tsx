@@ -31,7 +31,7 @@ const Navigation: React.FC<SidebarProps> = ({ currentView, setView, user }) => {
             <div className="w-8 h-8 bg-white rounded flex items-center justify-center text-[#2f8d46] font-bold text-xl">
               K
             </div>
-            <span className="font-bold text-xl tracking-wide">KARE26 Students</span>
+            <span className="font-bold text-xl tracking-wide">AI Career</span>
           </div>
           
           {user ? (
@@ -61,8 +61,16 @@ const Navigation: React.FC<SidebarProps> = ({ currentView, setView, user }) => {
                    onClick={() => setView(ViewState.PROFILE)}
                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all border ${currentView === ViewState.PROFILE ? 'bg-white text-[#2f8d46] border-white' : 'hover:bg-[#1e6b30] border-transparent'}`}
                  >
-                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${currentView === ViewState.PROFILE ? 'bg-[#2f8d46] text-white' : 'bg-white text-[#2f8d46]'}`}>
-                     {user.name.charAt(0).toUpperCase()}
+                   <div className={`w-7 h-7 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold ${currentView === ViewState.PROFILE ? 'bg-[#2f8d46] text-white' : 'bg-white text-[#2f8d46]'}`}>
+                     {user.avatarImage ? (
+                       <img 
+                         src={user.avatarImage} 
+                         alt="Profile" 
+                         className="w-full h-full object-cover"
+                       />
+                     ) : (
+                       user.name.charAt(0).toUpperCase()
+                     )}
                    </div>
                    <span className="text-sm font-medium hidden md:block">{user.name.split(' ')[0]}</span>
                  </button>
