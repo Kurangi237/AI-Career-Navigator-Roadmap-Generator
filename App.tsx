@@ -11,7 +11,7 @@ import Login from './components/Login';
 import Profile from './components/Profile';
 import { ViewState, UserProfile, Notification } from './types';
 import { getCurrentUser } from './services/authService';
-import { v4 as uuidv4 } from 'uuid';
+import { uuidv4 } from './utils/uuid';
 import notificationService from './services/notificationService';
 
 const Dashboard: React.FC<{ setView: (v: ViewState) => void, user: UserProfile }> = ({ setView, user }) => (
