@@ -8,7 +8,7 @@ interface Props {
 
 const ChatAssistant: React.FC<Props> = ({ onBack }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', content: "Hello! I'm KARE26 AI. I can help you with coding doubts, career advice, and finding resources on GeeksforGeeks or LeetCode. Ask me anything!", timestamp: Date.now() }
+    { role: 'model', content: "Hello! I'm AI Career Coach. I can help you with coding doubts, career advice, and finding resources on GeeksforGeeks or LeetCode. Ask me anything!", timestamp: Date.now() }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -55,7 +55,7 @@ const ChatAssistant: React.FC<Props> = ({ onBack }) => {
     <div className="flex flex-col h-[calc(100vh-140px)]">
       <div className="flex-1 flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div className="bg-[#2f8d46] p-4 text-white font-bold">
-            KARE26 Coach
+            AI Career Coach
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
           {messages.map((msg, idx) => (

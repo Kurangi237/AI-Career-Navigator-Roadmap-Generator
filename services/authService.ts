@@ -3,6 +3,22 @@ import { UserProfile } from "../types";
 const USER_KEY = 'kare26_user_profile';
 const USERS_KEY = 'kare26_registered_users';
 
+let supabase: any = null;
+let isSupabase = false;
+try {
+  const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL;
+  const SUPABASE_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    // lazy require
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { createClient } = require('@supabase/supabase-js');
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    isSupabase = true;
+  }
+} catch (e) {
+  isSupabase = false;
+}
+
 interface RegisteredUser {
   email: string;
   password: string;
@@ -68,6 +84,15 @@ export const createUser = (name: string, email: string, password: string): UserP
   registeredUsers.push(newUser);
   localStorage.setItem(USERS_KEY, JSON.stringify(registeredUsers));
 
+  // If Supabase configured, persist registered user record
+  if (isSupabase && supabase) {
+    try {
+      supabase.from('users').insert({ email, name: newUser.name, password, created_at: newUser.createdAt });
+    } catch (e) {
+      console.error('Supabase create user error', e);
+    }
+  }
+
   return createAndSaveUser(name.trim(), email, newUser.avatarImage);
 };
 
@@ -90,6 +115,14 @@ const createAndSaveUser = (name: string, email: string, avatarImage?: string): U
   };
 
   localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+  if (isSupabase && supabase) {
+    // upsert current user table entry for profile
+    try {
+      supabase.from('profiles').upsert({ email, name: newUser.name, avatar: avatarImage || null, joined_at: newUser.joinedDate });
+    } catch (e) {
+      console.error('Supabase upsert profile error', e);
+    }
+  }
   return newUser;
 };
 
@@ -104,7 +137,14 @@ export const logoutUser = (): void => {
 
 export const getCurrentUser = (): UserProfile | null => {
   const data = localStorage.getItem(USER_KEY);
-  return data ? JSON.parse(data) : null;
+  if (data) return JSON.parse(data);
+
+  // Optionally fetch from Supabase if configured (sync once)
+  if (isSupabase && supabase) {
+    // cannot be synchronous; return null and caller should re-check if needed
+    return null;
+  }
+  return null;
 };
 
 export const updateUserProfile = (updatedData: Partial<UserProfile>): UserProfile | null => {
@@ -113,16 +153,27 @@ export const updateUserProfile = (updatedData: Partial<UserProfile>): UserProfil
 
   const updated = { ...current, ...updatedData };
   localStorage.setItem(USER_KEY, JSON.stringify(updated));
-  
-  // Also update the registered user storage if avatarImage was updated
-  if (updatedData.avatarImage) {
-    const registeredUsers = getRegisteredUsers();
-    const userIndex = registeredUsers.findIndex(user => user.email === updated.email);
-    if (userIndex !== -1) {
-      registeredUsers[userIndex].avatarImage = updatedData.avatarImage;
-      localStorage.setItem(USERS_KEY, JSON.stringify(registeredUsers));
+
+  // Update registered users store if present (keep avatarImage & name in sync)
+  const registeredUsers = getRegisteredUsers();
+  const userIndex = registeredUsers.findIndex(user => user.email === updated.email);
+  if (userIndex !== -1) {
+    const ru = registeredUsers[userIndex];
+    // update avatarImage and name when provided
+    if (updated.avatarImage) ru.avatarImage = updated.avatarImage;
+    if (updated.name) ru.name = updated.name;
+    registeredUsers[userIndex] = ru;
+    localStorage.setItem(USERS_KEY, JSON.stringify(registeredUsers));
+  }
+
+  // Update remote profile if available
+  if (isSupabase && supabase) {
+    try {
+      supabase.from('profiles').update({ name: updated.name, avatar: updated.avatarImage }).eq('email', updated.email);
+    } catch (e) {
+      console.error('Supabase update profile error', e);
     }
   }
-  
+
   return updated;
 };

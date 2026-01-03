@@ -19,6 +19,7 @@ export interface UserProfile {
   joinedDate: number;
   avatarColor?: string;
   avatarImage?: string;
+  socialMedia?: SocialMediaProfile[];
 }
 
 export interface Resource {
@@ -83,3 +84,43 @@ export interface ChatMessage {
   content: string;
   timestamp: number;
 }
+
+export interface Notification {
+  id: string;
+  type: 'course' | 'job' | 'linkedin' | 'system' | 'reminder';
+  title: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+  link?: string;
+  priority?: 'low' | 'medium' | 'high';
+  category?: 'schedule' | 'deadline' | 'opportunity' | 'update';
+}
+
+export interface CourseSchedule {
+  id: string;
+  courseTitle: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  reminderSent: boolean;
+  completed: boolean;
+}
+
+export interface JobOpening {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  salary?: string;
+  postedDate: string;
+  source: 'linkedin' | 'career_page' | 'job_portal';
+  link: string;
+  saved: boolean;
+}
+
+export interface SocialMediaProfile {
+  platform: 'linkedin' | 'github' | 'leetcode' | 'geeksforgeeks';
+  username: string;
+  url: string;
+}
+

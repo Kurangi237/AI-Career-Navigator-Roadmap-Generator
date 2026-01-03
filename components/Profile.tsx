@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserProfile } from '../types';
+import { UserProfile, SocialMediaProfile } from '../types';
 import { updateUserProfile, logoutUser } from '../services/authService';
 import { getSavedRoadmaps, getSavedCourses } from '../services/storageService';
 
@@ -47,8 +47,23 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
 
   // 🔒 Existing save logic (unchanged)
   const handleSave = () => {
-    const updated = updateUserProfile(formData);
+    // Save only the relevant fields to avoid overwriting unintended data
+    const payload = {
+      name: formData.name,
+      avatarImage: formData.avatarImage,
+      targetRole: formData.targetRole,
+      skills: formData.skills,
+      socialMedia: formData.socialMedia,
+    } as Partial<UserProfile>;
+
+    const updated = updateUserProfile(payload);
     if (updated) {
+      // extra-safety: ensure localStorage key is set (in case of edge cases)
+      try {
+        localStorage.setItem('kare26_user_profile', JSON.stringify(updated));
+      } catch (e) {
+        // ignore storage errors
+      }
       setUser(updated); // header + reload fix
       setIsEditing(false);
     }
@@ -212,6 +227,47 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
                       </p>
                     )}
                   </div>
+                </div>
+
+                <div className="mt-6">
+                  <h3 className="text-lg font-bold text-slate-800 mb-3">Social Profiles</h3>
+                  <p className="text-sm text-slate-500 mb-3">Add links to your LinkedIn, GitHub, LeetCode, and GeeksforGeeks profiles. They'll be clickable from the header.</p>
+
+                  {['linkedin','github','leetcode','geeksforgeeks'].map((platform) => {
+                    const existing = formData.socialMedia?.find(s => s.platform === platform as any)?.url || '';
+                    return (
+                      <div key={platform} className="mb-3">
+                        <label className="block text-xs font-medium text-slate-600 mb-1">{platform.charAt(0).toUpperCase() + platform.slice(1)}</label>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={existing}
+                            onChange={(e) => {
+                              const url = e.target.value;
+                              const copy: SocialMediaProfile[] = formData.socialMedia ? [...formData.socialMedia] : [];
+                              const idx = copy.findIndex(s => s.platform === platform as any);
+                              if (idx !== -1) {
+                                copy[idx] = { ...copy[idx], url };
+                              } else {
+                                copy.push({ platform: platform as any, username: '', url });
+                              }
+                              setFormData({ ...formData, socialMedia: copy });
+                            }}
+                            placeholder={`https://www.${platform}.com/your-profile`}
+                            className="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-[#2f8d46]"
+                          />
+                        ) : (
+                          <p className="text-slate-700 text-sm">
+                            {existing ? (
+                              <a href={existing} target="_blank" rel="noopener noreferrer" className="text-[#2f8d46] hover:underline">Visit {platform}</a>
+                            ) : (
+                              'Not added'
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
