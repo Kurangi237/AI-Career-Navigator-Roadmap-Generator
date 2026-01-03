@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navigation from './components/Sidebar';
 import RoadmapGenerator from './components/RoadmapGenerator';
 import CourseRecommender from './components/CourseRecommender';
@@ -9,8 +9,10 @@ import SavedItems from './components/SavedItems';
 import JobSearch from './components/JobSearch';
 import Login from './components/Login';
 import Profile from './components/Profile';
-import { ViewState, UserProfile } from './types';
+import { ViewState, UserProfile, Notification } from './types';
 import { getCurrentUser } from './services/authService';
+import { v4 as uuidv4 } from 'uuid';
+import notificationService from './services/notificationService';
 
 const Dashboard: React.FC<{ setView: (v: ViewState) => void, user: UserProfile }> = ({ setView, user }) => (
   <div className="space-y-12 animate-fade-in py-6">
@@ -106,6 +108,89 @@ const Dashboard: React.FC<{ setView: (v: ViewState) => void, user: UserProfile }
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>(ViewState.LOGIN);
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const notificationsRef = useRef<Notification[]>([]);
+  const [selectedJobLink, setSelectedJobLink] = useState<string | null>(null);
+
+  useEffect(() => {
+    // persist locally only when Supabase isn't enabled
+    if (!notificationService.isSupabaseEnabled()) {
+      localStorage.setItem('kare26_notifications', JSON.stringify(notifications));
+    }
+    // keep a ref of latest notifications for stable access inside timers
+    notificationsRef.current = notifications;
+  }, [notifications]);
+
+  // load notifications (from Supabase if enabled, otherwise localStorage)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const items = await notificationService.fetchNotifications();
+        if (mounted) setNotifications(items);
+      } catch (e) {
+        console.error('Failed to load notifications', e);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  // Realtime subscription (Supabase) for new/updated notifications
+  useEffect(() => {
+    if (!notificationService.isSupabaseEnabled()) return;
+    const unsub = notificationService.subscribeNotifications((n) => {
+      setNotifications((prev) => {
+        const exists = prev.find(p => p.id === n.id);
+        if (exists) {
+          return prev.map(p => p.id === n.id ? { ...p, ...n } : p);
+        }
+        return [n, ...prev];
+      });
+    });
+    return () => { unsub && unsub(); };
+  }, []);
+
+  const addNotification = (n: Omit<Notification, 'id' | 'timestamp' | 'read'> & Partial<Pick<Notification, 'read'>>) => {
+    const newNotif: Notification = {
+      id: uuidv4(),
+      timestamp: Date.now(),
+      read: false,
+      ...n,
+    } as Notification;
+    setNotifications((s) => [newNotif, ...s]);
+    // persist remote/local
+    notificationService.saveNotification(newNotif).catch((err: any) => console.error(err));
+  };
+
+  const markAsRead = (id: string) => {
+    setNotifications((s) => s.map(n => n.id === id ? { ...n, read: true } : n));
+    notificationService.markAsReadRemote(id).catch((err: any) => console.error(err));
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+    notificationService.clearAllRemote().catch((err: any) => console.error(err));
+  };
+
+  // Background poller: simulate checking career pages / LinkedIn periodically
+  useEffect(() => {
+    let mounted = true;
+    const poll = async () => {
+      if (!mounted) return;
+      // Simple simulation: add one notification every minute if none exists
+      if (notificationsRef.current.length === 0) {
+        addNotification({ type: 'job', title: 'New job openings available', message: 'Top companies posted new roles. Check job search.', priority: 'medium', category: 'opportunity', link: '/jobs' });
+      }
+    };
+
+    const id = setInterval(poll, 60_000);
+    // initial kick
+    poll();
+    return () => {
+      mounted = false;
+      clearInterval(id);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     // Check for existing session
@@ -131,7 +216,22 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
-      <Navigation currentView={currentView} setView={setCurrentView} user={user} />
+      <Navigation
+        currentView={currentView}
+        setView={setCurrentView}
+        user={user}
+        notifications={notifications}
+        onMarkRead={markAsRead}
+        onClearAll={clearAllNotifications}
+        onOpenJobLink={(link: string) => {
+            // Force change to selectedJobLink even if same value was clicked before
+            setSelectedJobLink(null);
+            setTimeout(() => {
+              setSelectedJobLink(link);
+              setCurrentView(ViewState.JOB_SEARCH);
+            }, 50);
+          }}
+      />
       
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {currentView === ViewState.DASHBOARD && <Dashboard setView={setCurrentView} user={user} />}
@@ -142,7 +242,10 @@ const App: React.FC = () => {
         {currentView === ViewState.ROLE_INTEL && <RoleIntel onBack={goToDashboard} />}
         {currentView === ViewState.CHAT && <ChatAssistant onBack={goToDashboard} />}
         {currentView === ViewState.SAVED_ITEMS && <SavedItems onBack={goToDashboard} />}
-        {currentView === ViewState.JOB_SEARCH && <JobSearch onBack={goToDashboard} />}
+        {currentView === ViewState.JOB_SEARCH && <JobSearch selectedJobLink={selectedJobLink} onClearSelected={() => setSelectedJobLink(null)} onBack={goToDashboard} onNotifyJobs={(jobs) => {
+            // jobs: array of {title,company,link}
+            jobs.slice(0,5).forEach(job => addNotification({ type: 'job', title: `New: ${job.title}`, message: `${job.company} - ${job.location || ''}`.trim(), link: job.link, priority: 'medium', category: 'opportunity' }));
+          }} />}
       </main>
       
       <footer className="bg-slate-900 text-slate-400 py-6 text-center text-sm mt-auto">
