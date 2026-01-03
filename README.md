@@ -36,3 +36,6 @@ Important: do not commit API keys or `.env.local` to the repository. Use your ho
 This repo includes a simple GitHub Actions workflow that runs `npm install` and `npm run build` on push and pull requests to catch build regressions early.
 
 If you'd like, I can also add a serverless proxy (API route) so the GenAI key never goes to the browser; tell me which platform you prefer (Vercel, Netlify, or GitHub Actions) and I'll scaffold it.
+ 
+<!-- CI retrigger note -->
+<!-- Triggered: 2026-01-03 -->
