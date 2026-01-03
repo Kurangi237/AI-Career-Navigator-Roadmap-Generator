@@ -1,8 +1,8 @@
 import { RoadmapResponse, Course, SavedRoadmap, SavedCourse } from "../types";
 
 const KEYS = {
-  ROADMAPS: 'kare26_saved_roadmaps',
-  COURSES: 'kare26_saved_courses'
+  ROADMAPS: 'AI_Career_saved_roadmaps',
+  COURSES: 'AI_Career_saved_courses'
 };
 
 let supabase: any = null;
@@ -40,11 +40,11 @@ export const saveRoadmapToStorage = async (roadmap: RoadmapResponse): Promise<vo
   try {
     await supabase.from('roadmaps').insert({
       id: savedItem.id,
-      title: savedItem.title,
       role: savedItem.role,
-      weeks: savedItem.weeks,
+      duration_weeks: (savedItem as any).duration_weeks || (savedItem as any).weeks || 0,
+      weekly_plan: JSON.stringify((savedItem as any).weekly_plan || (savedItem as any).plan || []),
       timestamp: savedItem.timestamp,
-      raw: JSON.stringify(savedItem)
+      raw: JSON.stringify(savedItem),
     });
   } catch (e) {
     console.error('Supabase saveRoadmap error', e);
@@ -86,7 +86,7 @@ export const deleteSavedRoadmap = async (id: string): Promise<void> => {
 export const saveCourseToStorage = async (course: Course): Promise<void> => {
   const savedItem: SavedCourse = {
     ...course,
-    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    id: Date.now().toString() + Math.random().toString(36).slice(2, 11),
     timestamp: Date.now()
   };
 
@@ -104,8 +104,8 @@ export const saveCourseToStorage = async (course: Course): Promise<void> => {
     await supabase.from('courses').insert({
       id: savedItem.id,
       title: savedItem.title,
+      platform: savedItem.platform || null,
       link: savedItem.link,
-      source: savedItem.source || null,
       timestamp: savedItem.timestamp,
       raw: JSON.stringify(savedItem)
     });
