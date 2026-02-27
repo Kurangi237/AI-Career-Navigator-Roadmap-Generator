@@ -70,7 +70,6 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
   const [role, setRole] = useState('');
   const [skills, setSkills] = useState('');
   const [availability, setAvailability] = useState('10 hours/week');
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [roadmap, setRoadmap] = useState<RoadmapResponse | null>(null);
   const [error, setError] = useState('');
@@ -104,79 +103,58 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
     }
   };
 
-  const template = selectedTemplate
-    ? TIMELINE_TEMPLATES.find(t => t.id === selectedTemplate)
-    : null;
-
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {/* Timeline Templates Section */}
-      {!roadmap && (
-        <div className="space-y-6">
-          <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-8 rounded-xl border border-orange-200">
-            <h2 className="text-2xl font-bold text-orange-900 mb-2">Choose Your Learning Path</h2>
-            <p className="text-orange-800 mb-6">Select a timeline template to customize your preparation. These are flexible examples, not fixed requirements.</p>
+      {/* Timeline Examples - For Reference */}
+      <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-8 rounded-xl border border-orange-200">
+        <h2 className="text-2xl font-bold text-orange-900 mb-2">Learning Timeline Examples</h2>
+        <p className="text-orange-800 mb-6">These are reference examples. Customize your own duration and resources based on your goals and schedule.</p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {TIMELINE_TEMPLATES.map((tmpl) => (
-                <div
-                  key={tmpl.id}
-                  onClick={() => setSelectedTemplate(selectedTemplate === tmpl.id ? null : tmpl.id)}
-                  className={`p-5 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedTemplate === tmpl.id
-                      ? 'border-orange-600 bg-orange-50 shadow-lg'
-                      : 'border-orange-200 bg-white hover:border-orange-400 hover:shadow-md'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-bold text-slate-900">{tmpl.name}</h3>
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                      tmpl.level === 'beginner' ? 'bg-green-100 text-green-700' :
-                      tmpl.level === 'intermediate' ? 'bg-blue-100 text-blue-700' :
-                      'bg-purple-100 text-purple-700'
-                    }`}>
-                      {tmpl.level.charAt(0).toUpperCase() + tmpl.level.slice(1)}
-                    </span>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {TIMELINE_TEMPLATES.map((tmpl) => (
+            <div key={tmpl.id} className="p-5 rounded-lg border-2 border-orange-200 bg-white">
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="font-bold text-slate-900">{tmpl.name}</h3>
+                <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                  tmpl.level === 'beginner' ? 'bg-green-100 text-green-700' :
+                  tmpl.level === 'intermediate' ? 'bg-blue-100 text-blue-700' :
+                  'bg-purple-100 text-purple-700'
+                }`}>
+                  {tmpl.level.charAt(0).toUpperCase() + tmpl.level.slice(1)}
+                </span>
+              </div>
 
-                  <p className="text-sm text-slate-600 mb-3">{tmpl.description}</p>
+              <p className="text-sm text-slate-600 mb-3">{tmpl.description}</p>
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-orange-600 font-bold">{tmpl.daysMin}-{tmpl.daysMax} days</span>
-                      <span className="text-slate-500">typical duration</span>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-orange-200">
-                      <p className="text-xs font-semibold text-slate-700 mb-2">Learning Resources:</p>
-                      <ul className="space-y-1">
-                        {tmpl.materials.map((mat, idx) => (
-                          <li key={idx} className="text-xs text-slate-600 flex items-start gap-2">
-                            <span className="text-orange-500 mt-0.5">•</span>
-                            <span><strong>{mat.name}</strong> - {mat.cost}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-orange-600 font-bold">{tmpl.daysMin}-{tmpl.daysMax} days</span>
+                  <span className="text-slate-500">example duration</span>
                 </div>
-              ))}
+
+                <div className="mt-3 pt-3 border-t border-orange-200">
+                  <p className="text-xs font-semibold text-slate-700 mb-2">Typical Resources:</p>
+                  <ul className="space-y-1">
+                    {tmpl.materials.map((mat, idx) => (
+                      <li key={idx} className="text-xs text-slate-600 flex items-start gap-2">
+                        <span className="text-orange-500 mt-0.5">•</span>
+                        <span><strong>{mat.name}</strong> - {mat.cost}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Main Form Section */}
       <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
-        <h2 className="text-2xl font-bold text-orange-600 mb-2 flex items-center">
+        <h2 className="text-2xl font-bold text-orange-600 mb-6 flex items-center">
           <span className="bg-orange-600 w-2 h-8 rounded-sm mr-3"></span>
-          {template ? `Customize Your ${template.name} Roadmap` : 'Generate Career Roadmap'}
+          Generate Your Personalized Roadmap
         </h2>
-        {template && (
-          <p className="text-sm text-slate-600 mb-6">
-            Estimated duration: {template.daysMin}-{template.daysMax} days ({Math.round((template.daysMax / 7))} weeks)
-          </p>
-        )}
 
         <form onSubmit={handleGenerate} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
@@ -192,7 +170,7 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Time Availability</label>
+            <label className="text-sm font-semibold text-slate-700">Time Availability Per Week</label>
             <select
               value={availability}
               onChange={(e) => setAvailability(e.target.value)}
@@ -210,16 +188,16 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
             <textarea
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
-              placeholder="e.g. Basic HTML, Python knowledge, Excel, 2 years Java experience..."
+              placeholder="e.g. Basic HTML, Python knowledge, Excel, 2 years Java experience... (helps customize your roadmap)"
               className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all h-24"
             />
           </div>
 
-          <div className="md:col-span-2 flex gap-3">
+          <div className="md:col-span-2">
             <button
               type="submit"
               disabled={loading}
-              className={`flex-1 py-3 rounded-lg font-bold text-white transition-all transform active:scale-95 ${
+              className={`w-full py-3 rounded-lg font-bold text-white transition-all transform active:scale-95 ${
                 loading
                   ? 'bg-slate-400 cursor-not-allowed'
                   : 'bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-200'
@@ -231,22 +209,16 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Generating...
+                  Generating Your Roadmap...
                 </span>
               ) : 'Generate Personalized Roadmap'}
             </button>
-
-            {selectedTemplate && (
-              <button
-                type="button"
-                onClick={() => setSelectedTemplate(null)}
-                className="px-6 py-3 rounded-lg font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
-              >
-                Clear Template
-              </button>
-            )}
           </div>
         </form>
+
+        <p className="text-sm text-slate-500 mt-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+          💡 Tip: The generated roadmap will customize the timeline and resources based on your role, availability, and skills.
+        </p>
       </div>
 
       {error && (

@@ -146,6 +146,18 @@ const ResumeAnalyzer: React.FC<Props> = ({ onBack }) => {
           <section className="resume-builder-panel bg-slate-900/60 border border-slate-700 rounded-xl p-4 space-y-3">
             <h2 className="text-white text-xl font-bold">Resume Builder</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">{(['fresher', 'experienced', 'fullstack'] as TemplateId[]).map((t) => <button key={t} onClick={() => setTemplate(t)} className={`p-2 rounded border text-sm ${builder.templateId === t ? 'border-orange-500 bg-orange-500/10 text-white' : 'border-slate-700 text-slate-300'}`}>{t}</button>)}</div>
+
+            {/* ATS Score Widget - Separate from Resume */}
+            <div className="p-3 rounded-lg bg-gradient-to-r from-emerald-900/40 to-emerald-800/40 border border-emerald-700">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-bold text-emerald-100">ATS Compatibility Score</p>
+                <p className={`text-xl font-bold ${ats >= 75 ? 'text-emerald-400' : ats >= 55 ? 'text-amber-400' : 'text-red-400'}`}>{ats}%</p>
+              </div>
+              <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div className={`h-2 rounded-full transition-all ${ats >= 75 ? 'bg-emerald-400' : ats >= 55 ? 'bg-amber-400' : 'bg-red-400'}`} style={{ width: `${ats}%` }} />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2"><input value={builder.name} onChange={(e) => update('name', e.target.value)} placeholder="Draft Name" className="resume-field rounded px-3 py-2" /><input value={builder.fullName} onChange={(e) => update('fullName', e.target.value)} placeholder="Full Name" className="resume-field rounded px-3 py-2" /><input value={builder.title} onChange={(e) => update('title', e.target.value)} placeholder="Title" className="resume-field rounded px-3 py-2" /><input value={builder.location} onChange={(e) => update('location', e.target.value)} placeholder="Location" className="resume-field rounded px-3 py-2" /><input value={builder.email} onChange={(e) => update('email', e.target.value)} placeholder="Email" className="resume-field rounded px-3 py-2" /><input value={builder.phone} onChange={(e) => update('phone', e.target.value)} placeholder="Phone" className="resume-field rounded px-3 py-2" /></div>
             <textarea value={builder.links} onChange={(e) => update('links', e.target.value)} placeholder="Links: comma separated" className="resume-field w-full h-16 rounded px-3 py-2" />
             <textarea value={builder.summary} onChange={(e) => update('summary', e.target.value)} placeholder="Summary" className="resume-field w-full h-20 rounded px-3 py-2" />
@@ -180,17 +192,6 @@ const ResumeAnalyzer: React.FC<Props> = ({ onBack }) => {
                   ))}
                 </div>
               )}
-            </div>
-
-            {/* ATS Score */}
-            <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-slate-100 to-slate-50 border border-slate-200">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-bold text-slate-700">ATS Compatibility Score</p>
-                <p className={`text-lg font-bold ${ats >= 75 ? 'text-emerald-600' : ats >= 55 ? 'text-amber-600' : 'text-red-600'}`}>{ats}%</p>
-              </div>
-              <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-                <div className={`h-3 rounded-full transition-all ${ats >= 75 ? 'bg-emerald-500' : ats >= 55 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${ats}%` }} />
-              </div>
             </div>
 
             {/* Summary */}
