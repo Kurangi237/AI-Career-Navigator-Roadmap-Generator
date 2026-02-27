@@ -34,7 +34,7 @@ Email: demo@KBV.com        | Password: demo123
 This project now focuses on helping users crack MNC interviews through structured DSA preparation:
 
 ### Key Documentation Files
-- **CODEARENA_PRD.md** - MNC DSA Prep Hub product specification with 12-week roadmap
+- **MNC_DSA_PREP_HUB_PRD.md** - MNC DSA Prep Hub product specification with 12-week roadmap
 - **MNC_COMPANIES_DSA_FOCUS.md** - Detailed focus areas, interview patterns, and must-solve problems for each top MNC company
 - **12_WEEK_LEARNING_ROADMAP.md** - Complete week-by-week preparation plan with daily schedules, problem lists, and metrics
 - **TOP_DSA_PROBLEMS_BY_COMPANY.md** - 100+ must-solve problems organized by company with difficulty and frequency
