@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  # Judge Worker - Executes code submissions in isolated containers
+  judge-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.judge-worker
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - JUDGE_WORKER_TOKEN=${JUDGE_WORKER_TOKEN:-local-worker-token}
+      - JUDGE_API_BASE=http://backend:3004
+      - JUDGE_MAX_MEMORY=512m
+      - JUDGE_MAX_CPU=0.5
+      - JUDGE_TIMEOUT_MS=5000
+      - JUDGE_OUTPUT_LIMIT_BYTES=1048576
+      - DOCKER_JUDGE_ENABLED=true
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - mnc-dsa-prep
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://backend:3004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis - Queue and cache storage
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 1gb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - mnc-dsa-prep
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # PostgreSQL Database (optional - Supabase remote DB used primarily)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: mnc_dsa_prep
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      POSTGRES_DB: mnc_dsa_prep_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./supabase:/docker-entrypoint-initdb.d:ro
+    networks:
+      - mnc-dsa-prep
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnc_dsa_prep"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Backend API Server
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://mnc_dsa_prep:${POSTGRES_PASSWORD:-dev_password}@postgres:5432/mnc_dsa_prep_db
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - GENAI_API_KEY=${GENAI_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - JUDGE_USE_DOCKER=true
+      - JUDGE_API_BASE=http://localhost:3004
+      - JUDGE_WORKER_TOKEN=${JUDGE_WORKER_TOKEN:-local-worker-token}
+      - CORS_ORIGIN=http://localhost:3005
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3004:3004"
+    volumes:
+      - ./backend:/app/backend
+      - /app/backend/node_modules
+    networks:
+      - mnc-dsa-prep
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Frontend React App
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_API_BASE=http://localhost:3004
+    ports:
+      - "3005:5173"
+    volumes:
+      - ./frontend/src:/app/frontend/src
+      - ./frontend/public:/app/frontend/public
+      - /app/frontend/node_modules
+    networks:
+      - mnc-dsa-prep
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Optional: Adminer for database UI (development only)
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - mnc-dsa-prep
+    profiles:
+      - debug
+
+networks:
+  mnc-dsa-prep:
+    driver: bridge
+
+volumes:
+  redis-data:
+  postgres-data:
