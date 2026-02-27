@@ -13,6 +13,7 @@ dist-ssr
 *.local
 
 # Explicitly ignore local env file with secrets
+.env
 .env.local
 
 # Editor directories and files

@@ -1,0 +1,25 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy root package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Copy backend source
+COPY backend ./backend
+COPY shared ./shared
+
+# Install dependencies
+RUN npm ci
+
+# Build TypeScript if needed
+RUN npm run build 2>/dev/null || true
+
+EXPOSE 3004
+
+# Health check
+HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3004/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+
+CMD ["npm", "run", "dev:api"]

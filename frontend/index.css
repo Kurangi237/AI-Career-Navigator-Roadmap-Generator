@@ -1,0 +1,113 @@
+:root {
+  --brand-bg: #111827;
+  --brand-surface: rgba(31, 41, 55, 0.72);
+  --brand-surface-strong: rgba(17, 24, 39, 0.9);
+  --brand-border: rgba(251, 146, 60, 0.26);
+  --brand-primary: #f97316;
+  --brand-primary-strong: #ea580c;
+  --brand-accent: #fb923c;
+  --text-main: #e2e8f0;
+  --text-muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text-main);
+  background:
+    radial-gradient(1200px circle at 8% 6%, rgba(249, 115, 22, 0.2), transparent 58%),
+    radial-gradient(900px circle at 92% 14%, rgba(251, 146, 60, 0.16), transparent 50%),
+    linear-gradient(180deg, #111827 0%, #0f172a 100%);
+}
+
+input,
+select,
+textarea {
+  color: #0f172a !important;
+  background-color: #ffffff;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+}
+
+.code-editor {
+  color: #e2e8f0 !important;
+  background: #020617 !important;
+}
+
+.on-dark-input {
+  color: #e2e8f0 !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.on-dark-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.resume-builder-panel .resume-field,
+.resume-builder-panel input,
+.resume-builder-panel select,
+.resume-builder-panel textarea,
+.resume-analyzer-panel input,
+.resume-analyzer-panel select,
+.resume-analyzer-panel textarea {
+  color: #e2e8f0 !important;
+  background-color: #0f172a !important;
+  border: 1px solid #334155 !important;
+}
+
+.resume-builder-panel .resume-field::placeholder,
+.resume-builder-panel input::placeholder,
+.resume-builder-panel textarea::placeholder,
+.resume-analyzer-panel input::placeholder,
+.resume-analyzer-panel textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.glass-panel {
+  background: linear-gradient(145deg, rgba(31, 41, 55, 0.86), rgba(17, 24, 39, 0.92));
+  border: 1px solid var(--brand-border);
+  box-shadow:
+    0 24px 80px rgba(15, 23, 42, 0.52),
+    inset 0 0 0 1px rgba(251, 146, 60, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.brand-chip {
+  background: linear-gradient(90deg, rgba(249, 115, 22, 0.22), rgba(251, 146, 60, 0.1));
+  border: 1px solid rgba(251, 146, 60, 0.35);
+}
+
+.brand-glow {
+  box-shadow: 0 0 0 1px rgba(251, 146, 60, 0.45), 0 0 32px rgba(249, 115, 22, 0.3);
+}
+
+.distort-hover {
+  transition: transform 260ms ease, filter 260ms ease;
+}
+
+.distort-hover:hover {
+  transform: translateY(-2px) skewX(-0.6deg) scale(1.01);
+  filter: saturate(1.2) contrast(1.06);
+}

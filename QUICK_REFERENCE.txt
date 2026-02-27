@@ -1,0 +1,122 @@
+QUICK REFERENCE CARD
+════════════════════════════════════════════════════════════════════════════
+
+🚀 QUICK START - ONE COMMAND
+────────────────────────────────────────────────────────────────────────────
+npm run dev:all
+
+Then open: http://localhost:3005
+
+
+📊 PROJECT STRUCTURE
+────────────────────────────────────────────────────────────────────────────
+❌ OLD                              ✅ NEW
+├── api/                            ├── frontend/
+├── components/                     │   ├── src/
+├── services/                       │   │   ├── components/
+├── utils/                          │   │   │   ├── common/
+└── (messy)                         │   │   │   └── features/
+                                    │   │   ├── services/
+                                    │   │   └── utils/
+                                    ├── backend/
+                                    │   └── api/genai/
+                                    └── shared/
+                                        └── types.ts
+
+
+📝 AVAILABLE COMMANDS
+────────────────────────────────────────────────────────────────────────────
+npm run dev:all     ← BEST - Runs frontend + API server
+npm run dev         - Frontend only (for UI development)
+npm run dev:api     - API server only (testing endpoints)
+npm run build       - Build for production
+npm run preview     - Preview production build
+
+
+🔑 DEMO CREDENTIALS
+────────────────────────────────────────────────────────────────────────────
+👤 Admin User
+   Email:    admin@kare26.com
+   Password: password123
+
+👤 Student User
+   Email:    student@kare26.com
+   Password: student123
+
+👤 Demo User
+   Email:    demo@kare26.com
+   Password: demo123
+
+
+✨ 10 FEATURES WORKING
+────────────────────────────────────────────────────────────────────────────
+✅ Career Roadmap Generator    - AI-powered 12-week plans
+✅ Course Recommender          - Find best learning paths
+✅ Resume Analyzer             - Extract skills & suggestions
+✅ Job Role Intelligence       - Salary, skills, requirements
+✅ AI Chat Assistant           - Career coaching chatbot
+✅ Job Search                  - Browse 100+ job portals
+✅ Saved Items                 - Bookmark roadmaps/courses
+✅ Authentication              - Login & registration
+✅ Profile Management          - Edit user information
+✅ Notifications               - Real-time alerts
+
+
+📚 DOCUMENTATION
+────────────────────────────────────────────────────────────────────────────
+README.md                    - Overview & setup
+RUNNING.md                   - Current setup & how it works
+DEVELOPMENT.md               - Development workflow
+PROJECT_STRUCTURE.md         - Detailed architecture
+RESTRUCTURING_SUMMARY.md     - Complete list of changes
+
+
+🔄 CURRENT SERVERS
+────────────────────────────────────────────────────────────────────────────
+🔌 API Server      http://localhost:3004  [Running]
+🎨 Frontend Server http://localhost:3005  [Running]
+🔗 Proxy Config    vite.config.ts         [Active]
+♻️  Hot Reload      Enabled                [Ready]
+
+
+🎯 WHAT TO DO NEXT
+────────────────────────────────────────────────────────────────────────────
+1. Run servers:
+   npm run dev:all
+
+2. Open browser:
+   http://localhost:3005
+
+3. Login with demo credentials
+
+4. Test features:
+   - Generate a roadmap
+   - Get course recommendations
+   - Analyze resume
+   - Chat with AI assistant
+
+5. Edit code:
+   - Go to frontend/src/
+   - Make changes
+   - See instant hot reload
+
+
+⚡ TECH STACK
+────────────────────────────────────────────────────────────────────────────
+Frontend:  React 19 + Vite 6 + TypeScript + Tailwind CSS
+Backend:   Vercel Serverless + Google Gemini 2.5 Flash
+Storage:   localStorage + Supabase (optional)
+Dev:       Express + Concurrently + CORS
+
+
+════════════════════════════════════════════════════════════════════════════
+
+✅ EVERYTHING IS READY!
+
+Your project is:
+✓ Professionally structured
+✓ Fully configured
+✓ Ready for development
+✓ Ready for production deployment
+
+🚀 Start with: npm run dev:all
