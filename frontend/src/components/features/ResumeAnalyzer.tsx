@@ -161,15 +161,186 @@ const ResumeAnalyzer: React.FC<Props> = ({ onBack }) => {
             <div className="border border-slate-700 rounded p-2 bg-slate-800/40"><p className="text-sm text-white mb-1">Saved Drafts</p>{savedDrafts.slice(0, 6).map((d) => <button key={d.id} onClick={() => loadDraft(d.id)} className="w-full text-left text-xs text-slate-200 border border-slate-700 rounded p-2 mb-1">{d.name} - {new Date(d.updatedAt).toLocaleString()}</button>)}</div>
           </section>
 
-          <section className="bg-white text-slate-900 rounded-xl p-6 border border-slate-200">
-            <div className="border-b border-slate-300 pb-3 mb-3"><h1 className="text-2xl font-bold">{builder.fullName}</h1><p className="text-sm text-slate-700">{builder.title}</p><p className="text-xs text-slate-600">{builder.email} | {builder.phone} | {builder.location}</p><p className="text-xs text-blue-700 mt-1">{builder.links}</p></div>
-            <div className="mb-3 p-3 rounded bg-slate-100 border border-slate-200"><div className="flex items-center justify-between"><p className="text-sm font-semibold">ATS Score</p><p className="text-sm font-bold">{ats}%</p></div><div className="w-full h-2 bg-slate-200 rounded mt-2"><div className={`h-2 rounded ${ats >= 75 ? 'bg-emerald-500' : ats >= 55 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${ats}%` }} /></div></div>
-            <h3 className="text-sm font-bold uppercase border-b border-slate-300 mb-1">Summary</h3><p className="text-sm mb-3">{builder.summary}</p>
-            <h3 className="text-sm font-bold uppercase border-b border-slate-300 mb-1">Skills</h3><p className="text-sm mb-3">{builder.skills}</p>
-            <h3 className="text-sm font-bold uppercase border-b border-slate-300 mb-1">Experience</h3><pre className="text-sm whitespace-pre-wrap mb-3">{builder.experience}</pre>
-            <h3 className="text-sm font-bold uppercase border-b border-slate-300 mb-1">Projects</h3><pre className="text-sm whitespace-pre-wrap mb-3">{builder.projects}</pre>
-            <h3 className="text-sm font-bold uppercase border-b border-slate-300 mb-1">Education</h3><pre className="text-sm whitespace-pre-wrap mb-3">{builder.education}</pre>
-            <div className="mt-4 p-3 rounded bg-amber-50 border border-amber-200"><h4 className="text-sm font-semibold text-amber-900">Missing Checklist</h4><ul className="list-disc pl-5 text-sm text-amber-900">{missing.length ? missing.map((x) => <li key={x}>{x}</li>) : <li>Looks good.</li>}</ul></div>
+          <section className="bg-white text-slate-900 rounded-xl p-8 border border-slate-200 shadow-lg">
+            {/* Header Section */}
+            <div className="border-b-2 border-slate-300 pb-4 mb-4">
+              <h1 className="text-3xl font-bold text-slate-900">{builder.fullName || 'Your Name'}</h1>
+              <p className="text-lg text-orange-600 font-semibold">{builder.title || 'Your Title'}</p>
+              <div className="flex flex-wrap gap-3 text-sm text-slate-700 mt-2">
+                {builder.email && <span>📧 {builder.email}</span>}
+                {builder.phone && <span>📱 {builder.phone}</span>}
+                {builder.location && <span>📍 {builder.location}</span>}
+              </div>
+              {builder.links && (
+                <div className="text-sm text-blue-600 mt-2 flex flex-wrap gap-2">
+                  {splitCsv(builder.links).map((link, idx) => (
+                    <a key={idx} href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      {link} {idx < splitCsv(builder.links).length - 1 && '•'}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ATS Score */}
+            <div className="mb-4 p-4 rounded-lg bg-gradient-to-r from-slate-100 to-slate-50 border border-slate-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-bold text-slate-700">ATS Compatibility Score</p>
+                <p className={`text-lg font-bold ${ats >= 75 ? 'text-emerald-600' : ats >= 55 ? 'text-amber-600' : 'text-red-600'}`}>{ats}%</p>
+              </div>
+              <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div className={`h-3 rounded-full transition-all ${ats >= 75 ? 'bg-emerald-500' : ats >= 55 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${ats}%` }} />
+              </div>
+            </div>
+
+            {/* Summary */}
+            {builder.summary && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800 border-b-2 border-orange-500 pb-2 mb-2">Professional Summary</h3>
+                <p className="text-sm leading-relaxed text-slate-800">{builder.summary}</p>
+              </div>
+            )}
+
+            {/* Skills */}
+            {builder.skills && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800 border-b-2 border-orange-500 pb-2 mb-2">Technical Skills</h3>
+                <div className="flex flex-wrap gap-2">
+                  {splitCsv(builder.skills).map((skill, idx) => (
+                    <span key={idx} className="px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-sm text-slate-800 font-medium">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Experience */}
+            {builder.experience && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800 border-b-2 border-orange-500 pb-2 mb-3">Professional Experience</h3>
+                {textToLines(builder.experience).map((line, idx) => {
+                  const [role = '', company = '', duration = '', points = ''] = line.split('|').map((x) => x.trim());
+                  const pointsList = points.split(';').map((x) => x.trim()).filter(Boolean);
+                  return (
+                    <div key={idx} className="mb-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-slate-900">{role}</p>
+                          <p className="text-sm text-slate-700">{company}</p>
+                        </div>
+                        {duration && <p className="text-xs text-slate-600 whitespace-nowrap ml-2">{duration}</p>}
+                      </div>
+                      {pointsList.length > 0 && (
+                        <ul className="mt-1 ml-4 text-sm text-slate-800 list-disc">
+                          {pointsList.map((point, pidx) => (
+                            <li key={pidx} className="ml-2">{point}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Projects */}
+            {builder.projects && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800 border-b-2 border-orange-500 pb-2 mb-3">Projects</h3>
+                {textToLines(builder.projects).map((line, idx) => {
+                  const [name = '', tech = '', link = '', points = ''] = line.split('|').map((x) => x.trim());
+                  const pointsList = points.split(';').map((x) => x.trim()).filter(Boolean);
+                  return (
+                    <div key={idx} className="mb-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1">
+                          <p className="font-semibold text-slate-900">{name}</p>
+                          {tech && <p className="text-sm text-slate-700 italic">{tech}</p>}
+                        </div>
+                        {link && (
+                          <a href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline whitespace-nowrap">
+                            View →
+                          </a>
+                        )}
+                      </div>
+                      {pointsList.length > 0 && (
+                        <ul className="mt-1 ml-4 text-sm text-slate-800 list-disc">
+                          {pointsList.map((point, pidx) => (
+                            <li key={pidx} className="ml-2">{point}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Education */}
+            {builder.education && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800 border-b-2 border-orange-500 pb-2 mb-3">Education</h3>
+                {textToLines(builder.education).map((line, idx) => {
+                  const [degree = '', institute = '', year = '', score = ''] = line.split('|').map((x) => x.trim());
+                  return (
+                    <div key={idx} className="mb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-slate-900">{degree}</p>
+                          <p className="text-sm text-slate-700">{institute}</p>
+                        </div>
+                        <div className="text-right">
+                          {year && <p className="text-xs text-slate-600">{year}</p>}
+                          {score && <p className="text-xs text-slate-600 font-medium">{score}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Certifications */}
+            {builder.certifications && splitCsv(builder.certifications).length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800 border-b-2 border-orange-500 pb-2 mb-2">Certifications</h3>
+                <div className="flex flex-wrap gap-2">
+                  {splitCsv(builder.certifications).map((cert, idx) => (
+                    <span key={idx} className="text-sm text-slate-800">
+                      ✓ {cert} {idx < splitCsv(builder.certifications).length - 1 && '•'}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Achievements */}
+            {builder.achievements && splitCsv(builder.achievements).length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-slate-800 border-b-2 border-orange-500 pb-2 mb-2">Achievements</h3>
+                <ul className="ml-4 text-sm text-slate-800 list-disc">
+                  {splitCsv(builder.achievements).map((achievement, idx) => (
+                    <li key={idx} className="ml-2">{achievement}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Missing Checklist */}
+            {missing.length > 0 && (
+              <div className="mt-6 p-4 rounded-lg bg-amber-50 border-l-4 border-amber-500">
+                <h4 className="text-sm font-bold text-amber-900 mb-2">💡 Improvement Suggestions</h4>
+                <ul className="space-y-1">
+                  {missing.map((x) => (
+                    <li key={x} className="text-sm text-amber-800 flex items-start gap-2">
+                      <span>•</span>
+                      <span>{x}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
         </div>
       )}

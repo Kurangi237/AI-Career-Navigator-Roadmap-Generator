@@ -215,10 +215,10 @@ const MNCDSAPrepHub: React.FC<Props> = ({ user, onBack }) => {
           <button
             key={company.id}
             onClick={() => handleSelectCompany(company.id)}
-            className="glass-panel rounded-lg p-4 hover:shadow-lg transition-all hover:-translate-y-1 text-left text-sm"
+            className="glass-panel rounded-lg p-6 hover:shadow-lg transition-all hover:-translate-y-1 text-left text-sm flex flex-col items-center justify-center min-h-[180px]"
           >
-            <div className="text-3xl mb-2">{company.logo}</div>
-            <h3 className="font-bold text-white text-sm">{company.name}</h3>
+            <div className="text-5xl mb-3">{company.logo}</div>
+            <h3 className="font-bold text-white text-sm text-center">{company.name}</h3>
             <span className="inline-block mt-2 px-2 py-1 bg-orange-500/30 text-orange-200 text-xs rounded">{company.category}</span>
           </button>
         ))}

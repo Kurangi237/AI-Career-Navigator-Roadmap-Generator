@@ -7,10 +7,70 @@ interface Props {
   onBack: () => void;
 }
 
+interface TimelineTemplate {
+  id: string;
+  name: string;
+  daysMin: number;
+  daysMax: number;
+  description: string;
+  materialsCount: number;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  materials: { name: string; cost: string }[];
+}
+
+const TIMELINE_TEMPLATES: TimelineTemplate[] = [
+  {
+    id: 'beginner',
+    name: 'Beginner Track',
+    daysMin: 14,
+    daysMax: 21,
+    description: 'Quick crash course to build fundamental skills',
+    materialsCount: 3,
+    level: 'beginner',
+    materials: [
+      { name: 'Free Video Course (GeeksforGeeks/Khan Academy)', cost: 'Free' },
+      { name: 'Practice Platform (Code Sandbox)', cost: 'Free' },
+      { name: 'Crash Course Bundle', cost: 'Optional: $29-49' }
+    ]
+  },
+  {
+    id: 'intermediate',
+    name: 'Intermediate Track',
+    daysMin: 35,
+    daysMax: 50,
+    description: 'Master core concepts with hands-on projects',
+    materialsCount: 4,
+    level: 'intermediate',
+    materials: [
+      { name: 'Comprehensive Video Course (Udemy/Coursera)', cost: '$50-100' },
+      { name: 'Interactive Coding Platform (Codewars/HackerRank)', cost: 'Free/Premium $29' },
+      { name: 'Project-based Learning (FreeCodeCamp)', cost: 'Free' },
+      { name: 'Mentorship/Code Review', cost: 'Optional: $100-200' }
+    ]
+  },
+  {
+    id: 'advanced',
+    name: 'Advanced Track',
+    daysMin: 60,
+    daysMax: 90,
+    description: 'In-depth mastery with industry-level projects',
+    materialsCount: 5,
+    level: 'advanced',
+    materials: [
+      { name: 'Advanced Specialization Course', cost: '$150-300' },
+      { name: 'Premium Coding Platforms (LeetCode, AlgoExpert)', cost: '$99-159/year' },
+      { name: 'System Design Courses (Grokking)', cost: '$100-150' },
+      { name: 'Mock Interviews (Interviewing.io)', cost: '$100-500' },
+      { name: 'Professional Mentorship', cost: '$200-500' }
+    ]
+  }
+];
+
 const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
   const [role, setRole] = useState('');
   const [skills, setSkills] = useState('');
   const [availability, setAvailability] = useState('10 hours/week');
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [roadmap, setRoadmap] = useState<RoadmapResponse | null>(null);
   const [error, setError] = useState('');
@@ -40,18 +100,84 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
     if (roadmap) {
       saveRoadmapToStorage(roadmap);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000); // Reset feedback after 3s
+      setTimeout(() => setSaved(false), 3000);
     }
   };
 
+  const template = selectedTemplate
+    ? TIMELINE_TEMPLATES.find(t => t.id === selectedTemplate)
+    : null;
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Timeline Templates Section */}
+      {!roadmap && (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-8 rounded-xl border border-orange-200">
+            <h2 className="text-2xl font-bold text-orange-900 mb-2">Choose Your Learning Path</h2>
+            <p className="text-orange-800 mb-6">Select a timeline template to customize your preparation. These are flexible examples, not fixed requirements.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {TIMELINE_TEMPLATES.map((tmpl) => (
+                <div
+                  key={tmpl.id}
+                  onClick={() => setSelectedTemplate(selectedTemplate === tmpl.id ? null : tmpl.id)}
+                  className={`p-5 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedTemplate === tmpl.id
+                      ? 'border-orange-600 bg-orange-50 shadow-lg'
+                      : 'border-orange-200 bg-white hover:border-orange-400 hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-bold text-slate-900">{tmpl.name}</h3>
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                      tmpl.level === 'beginner' ? 'bg-green-100 text-green-700' :
+                      tmpl.level === 'intermediate' ? 'bg-blue-100 text-blue-700' :
+                      'bg-purple-100 text-purple-700'
+                    }`}>
+                      {tmpl.level.charAt(0).toUpperCase() + tmpl.level.slice(1)}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-slate-600 mb-3">{tmpl.description}</p>
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-orange-600 font-bold">{tmpl.daysMin}-{tmpl.daysMax} days</span>
+                      <span className="text-slate-500">typical duration</span>
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-orange-200">
+                      <p className="text-xs font-semibold text-slate-700 mb-2">Learning Resources:</p>
+                      <ul className="space-y-1">
+                        {tmpl.materials.map((mat, idx) => (
+                          <li key={idx} className="text-xs text-slate-600 flex items-start gap-2">
+                            <span className="text-orange-500 mt-0.5">•</span>
+                            <span><strong>{mat.name}</strong> - {mat.cost}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Form Section */}
       <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
-        <h2 className="text-2xl font-bold text-orange-600 mb-6 flex items-center">
+        <h2 className="text-2xl font-bold text-orange-600 mb-2 flex items-center">
           <span className="bg-orange-600 w-2 h-8 rounded-sm mr-3"></span>
-          Generate Career Roadmap
+          {template ? `Customize Your ${template.name} Roadmap` : 'Generate Career Roadmap'}
         </h2>
-        
+        {template && (
+          <p className="text-sm text-slate-600 mb-6">
+            Estimated duration: {template.daysMin}-{template.daysMax} days ({Math.round((template.daysMax / 7))} weeks)
+          </p>
+        )}
+
         <form onSubmit={handleGenerate} className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Target Role</label>
@@ -59,12 +185,12 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
               type="text"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g. Java Full Stack Developer"
+              placeholder="e.g. Java Full Stack Developer, React Developer..."
               className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">Time Availability</label>
             <select
@@ -84,18 +210,18 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
             <textarea
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
-              placeholder="e.g. Basic HTML, Python knowledge, Excel..."
+              placeholder="e.g. Basic HTML, Python knowledge, Excel, 2 years Java experience..."
               className="w-full bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all h-24"
             />
           </div>
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 flex gap-3">
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-lg font-bold text-white transition-all transform active:scale-95 ${
-                loading 
-                  ? 'bg-slate-400 cursor-not-allowed' 
+              className={`flex-1 py-3 rounded-lg font-bold text-white transition-all transform active:scale-95 ${
+                loading
+                  ? 'bg-slate-400 cursor-not-allowed'
                   : 'bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-200'
               }`}
             >
@@ -105,10 +231,20 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Thinking...
+                  Generating...
                 </span>
-              ) : 'Generate Personal Roadmap'}
+              ) : 'Generate Personalized Roadmap'}
             </button>
+
+            {selectedTemplate && (
+              <button
+                type="button"
+                onClick={() => setSelectedTemplate(null)}
+                className="px-6 py-3 rounded-lg font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all"
+              >
+                Clear Template
+              </button>
+            )}
           </div>
         </form>
       </div>
@@ -128,14 +264,14 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
                 </h3>
                 <span className="text-sm text-slate-500">{roadmap.duration_weeks} Weeks Estimated</span>
              </div>
-             
+
              <div className="flex items-center gap-3">
                 <button
                     onClick={handleSave}
                     disabled={saved}
                     className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                        saved 
-                        ? 'bg-slate-100 text-slate-500' 
+                        saved
+                        ? 'bg-slate-100 text-slate-500'
                         : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md'
                     }`}
                 >
@@ -159,22 +295,22 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
               <div key={idx} className="relative pl-8 pb-8 last:pb-0 group">
                 {/* Timeline Dot */}
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-4 border-orange-500"></div>
-                
+
                 <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-all">
                   <span className="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1 block">
                     Week {week.week}
                   </span>
                   <h4 className="text-lg font-bold text-slate-800 mb-2">{week.topic}</h4>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <div className="bg-slate-50 p-3 rounded border border-slate-200">
                         <p className="text-xs text-slate-500 mb-2 font-semibold uppercase">Learn From (Click to Open)</p>
                         <ul className="space-y-2">
                           {week.resources.map((r, i) => (
                             <li key={i}>
-                                <a 
-                                    href={r.link} 
-                                    target="_blank" 
+                                <a
+                                    href={r.link}
+                                    target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-sm text-orange-600 hover:underline flex items-start gap-2"
                                 >
