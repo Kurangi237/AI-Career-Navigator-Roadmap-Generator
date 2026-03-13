@@ -79,13 +79,13 @@ const CourseRecommender: React.FC<Props> = ({ onBack }) => {
   };
 
   return (
-    <div className="space-y-6 premium-page">
+    <div className="space-y-6 premium-page feature-courses">
       <div className="glass-panel p-8 rounded-xl shadow-sm border border-slate-700 premium-card">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-2xl font-bold text-blue-600">Courses, Tutorials & Articles</h2>
+          <h2 className="text-2xl font-bold text-cyan-300">Courses, Tutorials & Articles</h2>
           <div className="flex items-center gap-2">
-            <button onClick={() => setAdvancedOpen(true)} className="text-sm px-3 py-1.5 rounded border border-slate-600 text-slate-700 hover:bg-slate-800/70">Advanced Filters</button>
-            <button onClick={onBack} className="text-sm text-slate-400 hover:text-slate-800">Back</button>
+            <button onClick={() => setAdvancedOpen(true)} className="text-sm px-3 py-1.5 rounded border border-slate-600 text-slate-200 hover:bg-slate-700/40">Advanced Filters</button>
+            <button onClick={onBack} className="text-sm text-slate-400 hover:text-slate-100">Back</button>
           </div>
         </div>
         <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3 mt-4">
@@ -118,7 +118,7 @@ const CourseRecommender: React.FC<Props> = ({ onBack }) => {
         )}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 premium-stagger">
           {filteredCatalog.map((item) => (
-            <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className="border border-slate-200 rounded-lg p-4 hover:shadow-md premium-card">
+            <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className="border border-slate-700 rounded-lg p-4 hover:shadow-md premium-card bg-slate-900/40">
               <p className="text-xs uppercase tracking-wide text-slate-400">{item.format} · {item.pricing}</p>
               <h4 className="font-semibold text-slate-100 mt-1">{item.title}</h4>
               <p className="text-sm text-slate-300 mt-1">{item.topic} · {item.level}</p>
@@ -133,7 +133,7 @@ const CourseRecommender: React.FC<Props> = ({ onBack }) => {
           <h3 className="text-lg font-bold text-slate-100">AI Recommended Courses ({aiCourses.courses.length})</h3>
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 premium-stagger">
             {aiCourses.courses.map((course, idx) => (
-              <div key={idx} className="border border-slate-200 rounded-lg p-4 premium-card">
+              <div key={idx} className="border border-slate-700 rounded-lg p-4 premium-card bg-slate-900/40">
                 <p className="text-xs text-slate-400">{course.platform} · {course.difficulty}</p>
                 <h4 className="font-semibold text-slate-100 mt-1">{course.title}</h4>
                 <p className="text-sm text-slate-300 mt-1">{course.reason}</p>
@@ -142,7 +142,7 @@ const CourseRecommender: React.FC<Props> = ({ onBack }) => {
                   <button
                     onClick={() => handleSave(course)}
                     disabled={savedCourses.has(course.link)}
-                    className="text-xs px-2 py-1 rounded border border-blue-300 text-blue-700 disabled:opacity-50"
+                    className="text-xs px-2 py-1 rounded border border-blue-400 text-blue-300 hover:bg-blue-500/10 disabled:opacity-50"
                   >
                     {savedCourses.has(course.link) ? 'Saved' : 'Save'}
                   </button>

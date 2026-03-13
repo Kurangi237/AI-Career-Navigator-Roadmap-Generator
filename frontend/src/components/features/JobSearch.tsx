@@ -415,7 +415,7 @@ ${selectedJob.description || 'Description not available.'}`;
   };
 
   return (
-    <div className="space-y-4 premium-page">
+    <div className="space-y-4 premium-page feature-jobs">
       <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 rounded-xl border border-slate-700 shadow-sm overflow-hidden text-white">
         <div className="p-4 md:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -475,27 +475,27 @@ ${selectedJob.description || 'Description not available.'}`;
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden premium-card">
-        <div className="p-4 border-b border-slate-200">
+      <div className="glass-panel rounded-xl border border-slate-700/70 shadow-sm overflow-hidden premium-card">
+        <div className="p-4 border-b border-slate-700/70">
           <div className="grid grid-cols-1 lg:grid-cols-10 gap-3">
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search and find your dream job"
-              className="bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 outline-none lg:col-span-2 transition-all focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+              className="field-control lg:col-span-2"
             />
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="City, state, or remote"
-              className="bg-slate-50 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 outline-none lg:col-span-2 transition-all focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+              className="field-control lg:col-span-2"
             />
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value as CountryFilter)}
-              className="bg-white border border-slate-300 rounded-lg px-3 py-3 text-slate-700"
+              className="field-control"
             >
               <option value="All">All Countries</option>
               <option value="India">India</option>
@@ -507,7 +507,7 @@ ${selectedJob.description || 'Description not available.'}`;
             <select
               value={roleType}
               onChange={(e) => setRoleType(e.target.value as RoleTypeFilter)}
-              className="bg-white border border-slate-300 rounded-lg px-3 py-3 text-slate-700"
+              className="field-control"
             >
               <option value="All">All Roles</option>
               <option value="IT">IT</option>
@@ -516,7 +516,7 @@ ${selectedJob.description || 'Description not available.'}`;
             <select
               value={roleFocus}
               onChange={(e) => setRoleFocus(e.target.value)}
-              className="bg-white border border-slate-300 rounded-lg px-3 py-3 text-slate-700"
+              className="field-control"
             >
               {roleType === 'IT' && IT_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
               {roleType === 'Non-IT' && NON_IT_ROLE_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -525,7 +525,7 @@ ${selectedJob.description || 'Description not available.'}`;
             <select
               value={visaFilter}
               onChange={(e) => setVisaFilter(e.target.value as VisaFilter)}
-              className="bg-white border border-slate-300 rounded-lg px-3 py-3 text-slate-700"
+              className="field-control"
             >
               <option value="Any">Visa: Any</option>
               <option value="Sponsorship">Visa Sponsorship</option>
@@ -533,26 +533,26 @@ ${selectedJob.description || 'Description not available.'}`;
             <select
               value={workMode}
               onChange={(e) => setWorkMode(e.target.value as WorkModeFilter)}
-              className="bg-white border border-slate-300 rounded-lg px-3 py-3 text-slate-700"
+              className="field-control"
             >
               <option value="Any">Work Mode: Any</option>
               <option value="Remote">Remote</option>
               <option value="Onsite">Onsite</option>
               <option value="Hybrid">Hybrid</option>
             </select>
-            <button onClick={loadLiveJobs} disabled={loadingLive} className="bg-blue-600 text-white rounded-lg px-5 py-3 font-semibold hover:bg-blue-700 disabled:opacity-60">
+            <button onClick={loadLiveJobs} disabled={loadingLive} className="primary-btn px-5 py-3 disabled:opacity-60">
               {loadingLive ? 'Loading...' : 'Search'}
             </button>
             <button
               onClick={() => setAdvancedOpen(true)}
-              className="rounded-lg px-4 py-3 border border-slate-300 text-slate-700 hover:bg-slate-50"
+              className="ghost-btn rounded-lg px-4 py-3 border"
             >
               Filters
             </button>
             <select
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
-              className="bg-white border border-slate-300 rounded-lg px-3 py-3 text-slate-700 lg:col-span-1"
+              className="field-control lg:col-span-1"
             >
               <option value="All">All Sources</option>
               <option value="Remotive">Remotive</option>
@@ -592,27 +592,27 @@ ${selectedJob.description || 'Description not available.'}`;
             </select>
             <button
               onClick={() => setAutoRefresh((s) => !s)}
-              className={`rounded-lg px-4 py-3 border ${autoRefresh ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-white border-slate-300 text-slate-700'}`}
+              className={`rounded-lg px-4 py-3 border ${autoRefresh ? 'soft-btn border' : 'ghost-btn border'}`}
             >
               {autoRefresh ? 'Live On' : 'Live Off'}
             </button>
           </div>
 
-          <div className="mt-3 text-sm text-slate-600 flex flex-wrap items-center gap-2">
-            <span className="text-slate-500">Trending:</span>
+          <div className="mt-3 text-sm text-slate-300 flex flex-wrap items-center gap-2">
+            <span className="text-slate-400">Trending:</span>
             {TRENDING_QUERIES.map((t) => (
-              <button key={t} onClick={() => setQuery(t)} className="hover:text-blue-700">{t}</button>
+              <button key={t} onClick={() => setQuery(t)} className="hover:text-cyan-300">{t}</button>
             ))}
-            <span className="text-slate-400">|</span>
+            <span className="text-slate-500">|</span>
             {TRENDING_LOCATIONS.map((t) => (
-              <button key={t} onClick={() => setLocation(t)} className="hover:text-blue-700">{t}</button>
+              <button key={t} onClick={() => setLocation(t)} className="hover:text-cyan-300">{t}</button>
             ))}
-            <span className="ml-auto text-xs text-slate-500">
+            <span className="ml-auto text-xs text-slate-400">
               {lastUpdated ? `Updated ${formatTimeAgo(new Date(lastUpdated).toISOString())}` : 'Not updated yet'}
             </span>
           </div>
 
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-slate-400">
             Country filter is strict. {country === 'All' ? 'Showing all country openings.' : `Showing only ${country} openings in this board.`}
           </p>
           <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">

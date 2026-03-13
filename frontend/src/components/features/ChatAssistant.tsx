@@ -61,18 +61,18 @@ const ChatAssistant: React.FC<Props> = ({ onBack }) => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)]">
-      <div className="flex-1 flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div className="bg-blue-600 p-4 text-white font-bold flex items-center justify-between">
+    <div className="feature-chat premium-page flex flex-col h-[calc(100vh-140px)]">
+      <div className="flex-1 flex flex-col glass-panel rounded-xl border border-slate-700/70 overflow-hidden shadow-sm">
+        <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 text-white font-bold flex items-center justify-between">
           <span>AI Assistant</span>
           <button
             onClick={onBack}
-            className="text-xs px-3 py-1 rounded border border-white/40 hover:bg-white/10"
+            className="ghost-btn text-xs px-3 py-1 rounded border border-white/40 hover:bg-white/10"
           >
             Back
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900/35">
           {error && (
             <StatePanel
               mode="error"
@@ -88,7 +88,7 @@ const ChatAssistant: React.FC<Props> = ({ onBack }) => {
                 className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
                   msg.role === 'user'
                     ? 'bg-blue-600 text-white rounded-br-none'
-                    : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+                    : 'bg-slate-900/85 text-slate-100 border border-slate-700 rounded-bl-none'
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap leading-relaxed">{cleanMessage(msg.content)}</p>
@@ -97,7 +97,7 @@ const ChatAssistant: React.FC<Props> = ({ onBack }) => {
           ))}
           {isTyping && (
             <div className="flex justify-start">
-              <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none px-4 py-3 flex gap-2 items-center">
+              <div className="bg-slate-900/85 border border-slate-700 rounded-2xl rounded-bl-none px-4 py-3 flex gap-2 items-center">
                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-100"></div>
                 <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-200"></div>
@@ -107,18 +107,18 @@ const ChatAssistant: React.FC<Props> = ({ onBack }) => {
           <div ref={bottomRef} />
         </div>
 
-        <form onSubmit={handleSend} className="p-4 bg-white border-t border-slate-200 flex gap-3">
+        <form onSubmit={handleSend} className="p-4 bg-slate-950/50 border-t border-slate-700/70 flex gap-3">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask anything..."
-            className="flex-1 bg-slate-50 text-slate-900 border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            className="field-control flex-1"
           />
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+            className="primary-btn text-white p-2 rounded-lg disabled:opacity-50"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9-2-9-18-9 18 9-2zm0 0v-8"></path>

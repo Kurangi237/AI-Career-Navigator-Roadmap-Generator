@@ -1,4 +1,4 @@
-ï»¿import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   getSavedRoadmaps,
   getSavedCourses,
@@ -113,11 +113,11 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
   }, [visibleJobs]);
 
   return (
-    <div className="space-y-6 premium-page">
+    <div className="space-y-6 premium-page feature-saved">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 glass-panel p-6 rounded-xl shadow-sm border border-slate-700 premium-card">
-        <h2 className="text-2xl font-bold text-blue-600">Saved Items</h2>
+        <h2 className="text-2xl font-bold text-cyan-300">Saved Items</h2>
         <div className="flex items-center gap-2">
-          <button onClick={() => setAdvancedOpen(true)} className="text-sm px-3 py-1.5 rounded border border-slate-600 text-slate-300 hover:bg-slate-50">Advanced Filters</button>
+          <button onClick={() => setAdvancedOpen(true)} className="text-sm px-3 py-1.5 rounded border border-slate-600 text-slate-300 hover:bg-slate-700/40">Advanced Filters</button>
           <button onClick={onBack} className="text-sm text-slate-400 hover:text-slate-100">Back</button>
         </div>
         <div className="flex space-x-2 bg-slate-800/70 p-1 rounded-lg">
@@ -125,7 +125,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
             onClick={() => setActiveTab('roadmaps')}
             className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${
               activeTab === 'roadmaps'
-                ? 'bg-white text-blue-600 shadow-sm'
+                ? 'bg-blue-600/30 text-blue-100 border border-blue-400/40'
                 : 'text-slate-400 hover:text-slate-300'
             }`}
           >
@@ -135,7 +135,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
             onClick={() => setActiveTab('courses')}
             className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${
               activeTab === 'courses'
-                ? 'bg-white text-blue-600 shadow-sm'
+                ? 'bg-blue-600/30 text-blue-100 border border-blue-400/40'
               : 'text-slate-400 hover:text-slate-300'
             }`}
           >
@@ -145,7 +145,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
             onClick={() => setActiveTab('scans')}
             className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${
               activeTab === 'scans'
-                ? 'bg-white text-blue-600 shadow-sm'
+                ? 'bg-blue-600/30 text-blue-100 border border-blue-400/40'
                 : 'text-slate-400 hover:text-slate-300'
             }`}
           >
@@ -155,7 +155,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
             onClick={() => setActiveTab('jobs')}
             className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${
               activeTab === 'jobs'
-                ? 'bg-white text-blue-600 shadow-sm'
+                ? 'bg-blue-600/30 text-blue-100 border border-blue-400/40'
                 : 'text-slate-400 hover:text-slate-300'
             }`}
           >
@@ -167,7 +167,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
       {activeTab === 'roadmaps' && (
         <div className="space-y-6 premium-stagger">
           {visibleRoadmaps.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border border-dashed border-slate-600">
+            <div className="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-600">
               <p className="text-slate-400">No saved roadmaps yet. Go generate one!</p>
             </div>
           ) : (
@@ -184,7 +184,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
                   </div>
                   <button
                     onClick={() => handleDeleteRoadmap(roadmap.id)}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium px-3 py-1 bg-red-50 rounded"
+                    className="text-red-300 hover:text-red-200 text-sm font-medium px-3 py-1 bg-red-500/10 rounded border border-red-400/30"
                   >
                     Delete
                   </button>
@@ -193,10 +193,10 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
                 <div className="relative border-l-2 border-blue-500 ml-2 space-y-6 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                   {roadmap.weekly_plan.map((week, idx) => (
                     <div key={idx} className="relative pl-6">
-                      <div className="absolute -left-[7px] top-1.5 w-3 h-3 rounded-full bg-white border-2 border-blue-500"></div>
+                      <div className="absolute -left-[7px] top-1.5 w-3 h-3 rounded-full bg-slate-900 border-2 border-blue-500"></div>
                       <h4 className="text-sm font-bold text-slate-100">Week {week.week}: {week.topic}</h4>
                       <div className="mt-2 text-xs space-y-2">
-                        <div className="bg-slate-50 p-2 rounded">
+                        <div className="bg-slate-900/60 p-2 rounded border border-slate-700">
                            <ul className="space-y-1">
                             {week.resources.map((r, i) => (
                                 <li key={i}>
@@ -220,7 +220,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
       {activeTab === 'courses' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 premium-stagger">
           {visibleCourses.length === 0 ? (
-            <div className="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-slate-600">
+            <div className="col-span-full text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-600">
               <p className="text-slate-400">No saved courses yet. Go find some!</p>
             </div>
           ) : (
@@ -242,7 +242,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
                   </div>
 
                   <h3 className="text-md font-bold text-slate-100 mb-2">{course.title}</h3>
-                  <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="mt-auto pt-3 border-t border-slate-700 flex items-center justify-between">
                     <span className="text-xs text-slate-400 font-medium">
                        {course.duration}
                     </span>
@@ -265,7 +265,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
       {activeTab === 'scans' && (
         <div className="space-y-4 premium-stagger">
           {visibleScans.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border border-dashed border-slate-600">
+            <div className="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-600">
               <p className="text-slate-400">No resume scans yet. Analyze a resume to create history.</p>
             </div>
           ) : (
@@ -274,14 +274,14 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-semibold text-slate-100">{scan.fileName}</h4>
-                    <p className="text-xs text-slate-400 mt-1">{new Date(scan.analyzedAt).toLocaleString()} Â· JD: {scan.jdProvided ? 'yes' : 'no'}</p>
+                    <p className="text-xs text-slate-400 mt-1">{new Date(scan.analyzedAt).toLocaleString()} · JD: {scan.jdProvided ? 'yes' : 'no'}</p>
                   </div>
                   <button onClick={() => handleDeleteScan(scan.id)} className="text-xs px-2 py-1 rounded bg-red-50 text-red-600 hover:bg-red-100">Delete</button>
                 </div>
                 <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                  <div className="border rounded p-2 border-slate-200">Skills: {scan.analysis.skills_identified.length}</div>
-                  <div className="border rounded p-2 border-slate-200">Missing: {scan.analysis.missing_skills.length}</div>
-                  <div className="border rounded p-2 border-slate-200">Match: {scan.analysis.jd_match_score ?? 0}%</div>
+                  <div className="border rounded p-2 border-slate-700 bg-slate-900/40">Skills: {scan.analysis.skills_identified.length}</div>
+                  <div className="border rounded p-2 border-slate-700 bg-slate-900/40">Missing: {scan.analysis.missing_skills.length}</div>
+                  <div className="border rounded p-2 border-slate-700 bg-slate-900/40">Match: {scan.analysis.jd_match_score ?? 0}%</div>
                 </div>
               </div>
             ))
@@ -300,7 +300,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
             ))}
           </div>
           {visibleJobs.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border border-dashed border-slate-600">
+            <div className="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-600">
               <p className="text-slate-400">No saved jobs yet. Save jobs from the Job Search section.</p>
             </div>
           ) : (
@@ -310,7 +310,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
                   <div>
                     <p className="text-xs text-slate-400">{job.company}</p>
                     <h4 className="font-semibold text-slate-100">{job.title}</h4>
-                    <p className="text-sm text-slate-300 mt-1">{job.location} â€¢ {job.country} â€¢ {job.source}</p>
+                    <p className="text-sm text-slate-300 mt-1">{job.location} • {job.country} • {job.source}</p>
                     <p className="text-xs text-slate-400 mt-1">Saved {new Date(job.savedAt).toLocaleString()}</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -381,6 +381,7 @@ const SavedItems: React.FC<Props> = ({ onBack }) => {
 };
 
 export default SavedItems;
+
 
 
 

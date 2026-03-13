@@ -566,7 +566,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="app-shell flex flex-col">
       <Navigation
         currentView={currentView}
         setView={guardedSetView}
@@ -584,7 +584,7 @@ const App: React.FC = () => {
         }}
       />
 
-      <main ref={contentRef} className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main ref={contentRef} className="app-main flex-1">
         <Suspense
           fallback={
             <StatePanel
@@ -630,7 +630,7 @@ const App: React.FC = () => {
         </Suspense>
       </main>
 
-      <footer className="bg-slate-950/80 border-t border-cyan-900/60 text-slate-400 py-6 text-center text-sm mt-auto">
+      <footer className="border-t border-slate-700/70 bg-slate-950/80 text-slate-400 py-6 text-center text-sm mt-auto">
         <p>(c) 2026 KBV OS. Built for startup-scale career intelligence.</p>
       </footer>
     </div>

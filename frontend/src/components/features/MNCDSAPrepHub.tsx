@@ -690,7 +690,7 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
   const filteredCompanies = Object.values(ALL_COMPANIES).filter((c) => categoryFilter === 'All' || c.category === categoryFilter);
 
   const renderCompanyGrid = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 premium-page feature-dsa">
       <div className="flex flex-wrap gap-2 mb-4">
         {(['All', 'FAANG', 'AI', 'FinTech', 'Startup', 'Enterprise', 'Chinese Tech'] as const).map((cat) => (
           <button
@@ -726,7 +726,7 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
     const company = ALL_COMPANIES[selectedCompany];
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 premium-page feature-dsa">
         <div className="glass-panel rounded-lg p-6">
           <div className="flex items-center gap-4 mb-4">
             <CompanyLogo company={company} className="w-16 h-16" />
@@ -816,13 +816,13 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
   };
 
   const renderTimeline = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 premium-page feature-dsa">
       <div className="glass-panel rounded-lg p-6">
         <h3 className="text-2xl font-bold text-white mb-6">
           {selectedCompanyInfo ? `${selectedCompanyInfo.name} Preparation Timelines` : 'Interview Preparation Timelines'}
         </h3>
 
-        <div className="space-y-6">
+        <div className="space-y-6 premium-page feature-dsa">
           {(selectedCompanyInfo ? buildCompanyTimelinePaths(selectedCompanyInfo) : TIMELINE_PATHS).map((path) => (
             <div key={path.level} className="border-l-4 border-blue-500 pl-6 py-4">
               <div className="flex items-center gap-4 mb-4">
@@ -874,7 +874,7 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
   );
 
   const renderDSATopics = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 premium-page feature-dsa">
       <div className="glass-panel rounded-lg p-6">
         <h3 className="text-2xl font-bold text-white mb-4">
           {selectedCompanyInfo ? `${selectedCompanyInfo.name} Exact Focus Topics` : 'Complete DSA Learning Path'}
@@ -909,7 +909,7 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
   );
 
   const renderRoadmap = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 premium-page feature-dsa">
       <div className="glass-panel rounded-lg p-6">
         <h3 className="text-2xl font-bold text-white mb-6">
           {selectedCompanyInfo ? `${selectedCompanyInfo.name} Course-Based Roadmap` : 'Course-Based Roadmap'}
@@ -963,7 +963,7 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
   );
 
   const renderResources = () => (
-    <div className="space-y-6">
+    <div className="space-y-6 premium-page feature-dsa">
       <div className="glass-panel rounded-lg p-6">
         <h3 className="text-2xl font-bold text-white mb-4">
           {selectedCompanyInfo ? `${selectedCompanyInfo.name} Recommended Resources` : 'Learning Resources'}
@@ -1013,7 +1013,7 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
     </div>
   );
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 premium-page feature-dsa">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-white">MNC DSA Prep Hub</h1>
         <button
@@ -1042,6 +1042,7 @@ const MNCDSAPrepHub: React.FC<Props> = ({ onBack }) => {
 };
 
 export default MNCDSAPrepHub;
+
 
 
 

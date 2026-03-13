@@ -187,7 +187,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 premium-page">
+    <div className="max-w-6xl mx-auto space-y-6 premium-page feature-profile">
       <button onClick={onBack} className="text-slate-300 hover:text-white font-medium flex items-center gap-2 mb-2">
         Back to Dashboard
       </button>

@@ -3,8 +3,8 @@ import { GoogleGenAI, Type, Schema } from '@google/genai';
 
 export default async function handler(req: any, res: any) {
   try {
-    const key = process.env.GENAI_API_KEY;
-    if (!key) return res.status(500).json({ error: 'GENAI_API_KEY not set' });
+    const key = process.env.GENAI_API_KEY || process.env.GEMINI_API_KEY;
+    if (!key) return res.status(500).json({ error: 'GENAI_API_KEY/GEMINI_API_KEY not set' });
 
     const { base64Data, mimeType, jobDescription } = req.body || {};
     if (!base64Data || !mimeType) return res.status(400).json({ error: 'missing data' });
@@ -45,3 +45,4 @@ ${jobDescription ? `Also compare against this job description and return jd_matc
     res.status(500).json({ error: err?.message || 'server error' });
   }
 }
+

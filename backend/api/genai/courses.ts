@@ -3,8 +3,8 @@ import { GoogleGenAI, Type, Schema } from '@google/genai';
 
 export default async function handler(req: any, res: any) {
   try {
-    const key = process.env.GENAI_API_KEY;
-    if (!key) return res.status(500).json({ error: 'GENAI_API_KEY not set' });
+    const key = process.env.GENAI_API_KEY || process.env.GEMINI_API_KEY;
+    if (!key) return res.status(500).json({ error: 'GENAI_API_KEY/GEMINI_API_KEY not set' });
 
     const { role, level, budget } = req.body || {};
     if (!role) return res.status(400).json({ error: 'missing role' });
@@ -34,3 +34,4 @@ export default async function handler(req: any, res: any) {
     res.status(500).json({ error: err?.message || 'server error' });
   }
 }
+

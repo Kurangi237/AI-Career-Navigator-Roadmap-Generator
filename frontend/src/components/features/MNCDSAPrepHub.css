@@ -445,3 +445,103 @@
   }
 }
 
+/* Premium dark theme overrides for DSA Hub */
+.feature-dsa .ca-root {
+  color: #e2e8f0;
+  background: linear-gradient(160deg, rgba(15, 23, 42, 0.86), rgba(2, 6, 23, 0.92));
+  border: 1px solid rgba(71, 85, 105, 0.78);
+  box-shadow: 0 20px 56px rgba(2, 6, 23, 0.42);
+}
+
+.feature-dsa .ca-header h1,
+.feature-dsa .ca-panel-header h3,
+.feature-dsa .ca-panel-header h4 {
+  color: #f8fafc;
+}
+
+.feature-dsa .ca-header p,
+.feature-dsa .ca-metrics span,
+.feature-dsa .ca-exams .ca-card ul {
+  color: #94a3b8;
+}
+
+.feature-dsa .ca-card,
+.feature-dsa .ca-problems-page,
+.feature-dsa .ca-problem-panel,
+.feature-dsa .ca-editor-panel,
+.feature-dsa .ca-console-panel,
+.feature-dsa .ca-tests-panel,
+.feature-dsa .ca-scorecard,
+.feature-dsa .ca-metrics > div {
+  background: rgba(15, 23, 42, 0.76);
+  border-color: rgba(71, 85, 105, 0.88);
+  color: #e2e8f0;
+}
+
+.feature-dsa .ca-list-item {
+  border-color: rgba(71, 85, 105, 0.85);
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.feature-dsa .ca-problem-table th,
+.feature-dsa .ca-problem-table td {
+  border-bottom-color: rgba(51, 65, 85, 0.95);
+}
+
+.feature-dsa .ca-problem-table tbody tr:hover {
+  background: rgba(30, 41, 59, 0.62);
+}
+
+.feature-dsa .ca-problem-table tbody tr.active {
+  background: rgba(37, 99, 235, 0.22);
+}
+
+.feature-dsa .ca-toolbar input,
+.feature-dsa .ca-toolbar select,
+.feature-dsa .ca-card input,
+.feature-dsa .ca-card select,
+.feature-dsa .ca-discuss-input input {
+  border-color: rgba(71, 85, 105, 0.92);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e2e8f0;
+}
+
+.feature-dsa .ca-cta-row button,
+.feature-dsa .ca-card button,
+.feature-dsa .ca-exam-actions button,
+.feature-dsa .ca-panel-header.compact button,
+.feature-dsa .ca-discuss-input button,
+.feature-dsa .ca-header button,
+.feature-dsa .ca-tab-btn {
+  border-color: rgba(96, 165, 250, 0.65);
+  background: rgba(37, 99, 235, 0.3);
+  color: #e0f2fe;
+  transition: all 180ms ease;
+}
+
+.feature-dsa .ca-cta-row button:hover,
+.feature-dsa .ca-card button:hover,
+.feature-dsa .ca-exam-actions button:hover,
+.feature-dsa .ca-panel-header.compact button:hover,
+.feature-dsa .ca-discuss-input button:hover,
+.feature-dsa .ca-header button:hover,
+.feature-dsa .ca-tab-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(37, 99, 235, 0.42);
+}
+
+.feature-dsa .ca-cta-row .ghost,
+.feature-dsa .ca-card .ghost {
+  border-color: rgba(100, 116, 139, 0.7);
+  background: rgba(15, 23, 42, 0.65);
+  color: #cbd5e1;
+}
+
+.feature-dsa .ca-tab-btn.active,
+.feature-dsa .ca-module-nav button.active,
+.feature-dsa .active-mini {
+  background: linear-gradient(135deg, #2563eb, #0ea5e9) !important;
+  border-color: rgba(56, 189, 248, 0.7) !important;
+  color: #ffffff !important;
+}
+

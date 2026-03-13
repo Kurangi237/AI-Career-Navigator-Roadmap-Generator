@@ -271,7 +271,7 @@ ${q}`;
   const copyCmd = async () => { await navigator.clipboard.writeText(`git init\ngit add .\ngit commit -m \"portfolio\"\ngit remote add origin https://github.com/<username>/${repoName}.git\ngit branch -M main\ngit push -u origin main\nvercel deploy`); setStatus('Publish commands copied.'); setTimeout(()=>setStatus(''),1600); };
 
   return (
-    <div className="space-y-4 premium-page">
+    <div className="space-y-4 premium-page feature-portfolio">
       <div className="glass-panel rounded-xl border border-slate-700 p-4 premium-card">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div><h2 className="text-2xl font-bold text-blue-500">AI Portfolio Studio</h2><p className="text-sm text-slate-300">Left chat + editor, right live preview with animations and templates.</p></div>

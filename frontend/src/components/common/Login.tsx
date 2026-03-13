@@ -54,7 +54,7 @@ const Login: React.FC<Props> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0b1220] via-[#111827] to-[#1f2937] p-4 md:p-8">
+    <div className="app-shell p-4 md:p-8">
       <div className="max-w-6xl mx-auto min-h-[calc(100vh-2rem)] md:min-h-[calc(100vh-4rem)] grid lg:grid-cols-2 gap-6 items-stretch">
         <section className="hidden lg:flex glass-panel rounded-2xl p-10 flex-col justify-between premium-page">
           <div>
@@ -74,69 +74,69 @@ const Login: React.FC<Props> = ({ onLoginSuccess }) => {
           </div>
         </section>
 
-        <section className="bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-lg mx-auto border border-blue-100 self-center">
+        <section className="glass-panel p-6 md:p-8 rounded-2xl w-full max-w-lg mx-auto border border-slate-700/70 self-center">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-600 text-white rounded-xl flex items-center justify-center text-3xl font-bold mx-auto mb-4 shadow-lg shadow-blue-200">
+            <div className="icon-chip w-16 h-16 text-3xl mx-auto mb-4">
               M
             </div>
-            <h1 className="text-3xl font-bold text-slate-800">
+            <h1 className="text-3xl font-bold text-slate-100">
               {isCreatingAccount ? 'Create Account' : 'Welcome Back'}
             </h1>
-            <p className="text-slate-500 mt-2">
+            <p className="text-slate-300 mt-2">
               {isCreatingAccount ? 'Join AI Career Navigator & Roadmap Generator' : 'Sign in to AI Career Navigator & Roadmap Generator'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-500/10 border border-red-400/40 text-red-200 px-4 py-3 rounded-lg text-sm">
                 {error}
               </div>
             )}
             
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-slate-200 mb-2">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. John Doe"
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="field-control"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-slate-200 mb-2">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="e.g. student@university.edu"
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="field-control"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+              <label className="block text-sm font-medium text-slate-200 mb-2">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={isCreatingAccount ? "Create a password" : "Enter your password"}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="field-control"
                 required
               />
             </div>
 
             {isCreatingAccount && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Account Role</label>
+                <label className="block text-sm font-medium text-slate-200 mb-2">Account Role</label>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value as UserRole)}
-                  className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="field-control"
                 >
                   <option value="student">Student</option>
                   <option value="mentor">Mentor</option>
@@ -146,13 +146,13 @@ const Login: React.FC<Props> = ({ onLoginSuccess }) => {
 
             {isCreatingAccount && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Confirm Password</label>
+                <label className="block text-sm font-medium text-slate-200 mb-2">Confirm Password</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
-                  className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="field-control"
                   required
                 />
               </div>
@@ -161,7 +161,7 @@ const Login: React.FC<Props> = ({ onLoginSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 transform active:scale-[0.98]"
+              className="w-full primary-btn text-white font-bold py-3.5 transform active:scale-[0.98] disabled:opacity-60"
             >
               {loading 
                 ? (isCreatingAccount ? 'Creating Account...' : 'Signing in...')
@@ -171,7 +171,7 @@ const Login: React.FC<Props> = ({ onLoginSuccess }) => {
           </form>
 
           {!isCreatingAccount && (
-            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+            <div className="mt-4 rounded-lg border border-slate-700 bg-slate-900/60 p-3 text-xs text-slate-300">
               Demo users: `admin@kbv.com` (admin/business), `demo@kbv.com` (mentor/pro), `student@kbv.com` (student/starter).
             </div>
           )}
@@ -180,7 +180,7 @@ const Login: React.FC<Props> = ({ onLoginSuccess }) => {
             <button
               type="button"
               onClick={toggleMode}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+              className="text-cyan-300 hover:text-cyan-200 text-sm font-medium transition-colors"
             >
               {isCreatingAccount 
                 ? 'Already have an account? Sign in'

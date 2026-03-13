@@ -596,7 +596,7 @@ const ResumeAnalyzer: React.FC<Props> = ({ onBack, initialJobDescription, onCons
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 premium-page feature-resume">
       <button onClick={onBack} className="flex items-center text-slate-400 hover:text-white transition-colors self-start">Back to Dashboard</button>
       <div className="flex gap-2">
         <button onClick={() => setTab('analyzer')} className={`px-4 py-2 rounded ${tab === 'analyzer' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'}`}>Resume Analyzer</button>
@@ -827,28 +827,28 @@ const ResumeAnalyzer: React.FC<Props> = ({ onBack, initialJobDescription, onCons
           >
             {previewToolbar.visible && (
               <div
-                className="absolute z-20 flex items-center gap-1 rounded border border-slate-300 bg-white px-2 py-1 shadow-lg"
+                className="absolute z-20 flex items-center gap-1 rounded border border-slate-600 bg-slate-900/95 px-2 py-1 shadow-2xl backdrop-blur"
                 style={{ left: `${previewToolbar.x}px`, top: `${previewToolbar.y}px` }}
               >
-                <button type="button" onClick={replacePreviewSelection} className="px-2 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200">Edit</button>
+                <button type="button" onClick={replacePreviewSelection} className="px-2 py-1 text-xs rounded bg-slate-700 text-slate-100 hover:bg-slate-600">Edit</button>
                 <button type="button" onClick={aiOptimizePreviewSelection} disabled={previewAiLoading} className="px-2 py-1 text-xs rounded bg-orange-600 text-white disabled:opacity-60">
                   {previewAiLoading ? 'AI...' : 'AI Optimize'}
                 </button>
-                <button type="button" onClick={() => previewExec('bold')} className={`px-2 py-1 text-xs rounded ${previewToolbar.bold ? 'bg-slate-800 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>B</button>
-                <button type="button" onClick={() => previewExec('removeFormat')} className="px-2 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200">Normal</button>
-                <button type="button" onClick={() => applyPreviewAlign('left')} className={`px-2 py-1 text-xs rounded ${previewToolbar.align === 'left' ? 'bg-slate-800 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>Left</button>
-                <button type="button" onClick={() => applyPreviewAlign('center')} className={`px-2 py-1 text-xs rounded ${previewToolbar.align === 'center' ? 'bg-slate-800 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>Center</button>
-                <button type="button" onClick={() => applyPreviewAlign('right')} className={`px-2 py-1 text-xs rounded ${previewToolbar.align === 'right' ? 'bg-slate-800 text-white' : 'bg-slate-100 hover:bg-slate-200'}`}>Right</button>
-                <button type="button" onClick={() => adjustPreviewFont(-1)} className="px-2 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200">-</button>
-                <span className="text-[11px] text-slate-500">{previewToolbar.fontSize}px</span>
-                <button type="button" onClick={() => adjustPreviewFont(1)} className="px-2 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200">+</button>
+                <button type="button" onClick={() => previewExec('bold')} className={`px-2 py-1 text-xs rounded ${previewToolbar.bold ? 'bg-cyan-600 text-white' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}>B</button>
+                <button type="button" onClick={() => previewExec('removeFormat')} className="px-2 py-1 text-xs rounded bg-slate-700 text-slate-100 hover:bg-slate-600">Normal</button>
+                <button type="button" onClick={() => applyPreviewAlign('left')} className={`px-2 py-1 text-xs rounded ${previewToolbar.align === 'left' ? 'bg-cyan-600 text-white' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}>Left</button>
+                <button type="button" onClick={() => applyPreviewAlign('center')} className={`px-2 py-1 text-xs rounded ${previewToolbar.align === 'center' ? 'bg-cyan-600 text-white' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}>Center</button>
+                <button type="button" onClick={() => applyPreviewAlign('right')} className={`px-2 py-1 text-xs rounded ${previewToolbar.align === 'right' ? 'bg-cyan-600 text-white' : 'bg-slate-700 text-slate-100 hover:bg-slate-600'}`}>Right</button>
+                <button type="button" onClick={() => adjustPreviewFont(-1)} className="px-2 py-1 text-xs rounded bg-slate-700 text-slate-100 hover:bg-slate-600">-</button>
+                <span className="text-[11px] text-slate-300">{previewToolbar.fontSize}px</span>
+                <button type="button" onClick={() => adjustPreviewFont(1)} className="px-2 py-1 text-xs rounded bg-slate-700 text-slate-100 hover:bg-slate-600">+</button>
               </div>
             )}
             <iframe
               ref={resumeIframeRef}
               title="Resume Preview"
               srcDoc={previewHtml || buildResumeDocumentHtml(true)}
-              className="w-full rounded-lg border border-slate-200 bg-white"
+              className="w-full rounded-lg border border-slate-300 bg-white shadow-md"
               style={{ minHeight: '270mm' }}
             />
           </section>

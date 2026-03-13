@@ -278,7 +278,7 @@ const RoadmapGenerator: React.FC<Props> = ({ onBack }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 premium-page">
+    <div className="max-w-6xl mx-auto space-y-8 premium-page feature-roadmap">
       {/* Main Form Section */}
       <div className="glass-panel p-8 rounded-xl shadow-sm border border-slate-700 premium-card">
         <div className="flex items-center justify-between mb-6">

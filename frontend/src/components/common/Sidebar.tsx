@@ -74,15 +74,12 @@ const Navigation: React.FC<SidebarProps> = ({
   const unread = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-700/60 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 backdrop-blur-md">
+    <header className="sticky top-0 z-50 nav-shell">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-16 flex items-center justify-between gap-3">
-          <button
-            className="flex items-center gap-2"
-            onClick={() => user && setView(ViewState.DASHBOARD)}
-          >
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-base">M</div>
-            <span className="font-semibold text-white tracking-wide">MNC DSA Prep</span>
+          <button className="flex items-center gap-2.5" onClick={() => user && setView(ViewState.DASHBOARD)}>
+            <div className="icon-chip">M</div>
+            <span className="font-semibold text-slate-100 tracking-wide">MNC DSA Prep</span>
           </button>
 
           {user ? (
@@ -92,11 +89,7 @@ const Navigation: React.FC<SidebarProps> = ({
                   <button
                     key={item.id}
                     onClick={() => setView(item.id)}
-                    className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                      currentView === item.id
-                        ? 'bg-blue-600 text-white'
-                        : 'text-slate-200 hover:bg-white/10'
-                    }`}
+                    className={`nav-item px-3 py-1.5 rounded-lg text-sm transition-all ${currentView === item.id ? 'nav-item-active' : ''}`}
                   >
                     {item.label}
                   </button>
@@ -107,7 +100,7 @@ const Navigation: React.FC<SidebarProps> = ({
                 <div className="relative">
                   <button
                     onClick={() => setShowNotif((s) => !s)}
-                    className="p-2 rounded-lg border border-slate-600 text-slate-100 hover:bg-white/10"
+                    className="ghost-btn p-2 border text-slate-100"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118.6 14.6V11a6 6 0 10-12 0v3c0 .737-.268 1.447-.74 1.995L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                   </button>
@@ -139,8 +132,8 @@ const Navigation: React.FC<SidebarProps> = ({
                   onClick={() => setView(ViewState.SAVED_ITEMS)}
                   className={`hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${
                     currentView === ViewState.SAVED_ITEMS
-                      ? 'border-blue-400 bg-blue-600/30 text-white'
-                      : 'border-slate-600 text-slate-200 hover:bg-white/10'
+                      ? 'nav-item-active text-white'
+                      : 'ghost-btn text-slate-200'
                   }`}
                   title="Open Saved"
                 >
@@ -154,8 +147,8 @@ const Navigation: React.FC<SidebarProps> = ({
                   onClick={() => setView(ViewState.PROFILE)}
                   className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg border transition-all ${
                     currentView === ViewState.PROFILE
-                      ? 'border-blue-400 bg-blue-600/30 text-white'
-                      : 'border-slate-600 text-slate-200 hover:bg-white/10'
+                      ? 'nav-item-active text-white'
+                      : 'ghost-btn text-slate-200'
                   }`}
                 >
                   <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center bg-blue-500 text-white text-xs font-bold">
@@ -166,7 +159,7 @@ const Navigation: React.FC<SidebarProps> = ({
 
                 <button
                   onClick={() => setMobileOpen((s) => !s)}
-                  className="xl:hidden p-2 rounded-lg border border-slate-600 text-slate-200 hover:bg-white/10"
+                  className="xl:hidden ghost-btn p-2 border text-slate-200"
                 >
                   <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -186,8 +179,8 @@ const Navigation: React.FC<SidebarProps> = ({
                   onClick={() => { setView(item.id); setMobileOpen(false); }}
                   className={`px-3 py-2 rounded-lg text-sm border ${
                     currentView === item.id
-                      ? 'bg-blue-600 border-blue-400 text-white'
-                      : 'border-slate-600 text-slate-200 hover:bg-white/10'
+                      ? 'nav-item-active text-white'
+                      : 'ghost-btn text-slate-200'
                   }`}
                 >
                   {item.label}
