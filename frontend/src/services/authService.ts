@@ -6,20 +6,7 @@ const LEGACY_USER_KEY = 'kare26_user_profile';
 const LEGACY_USERS_KEY = 'kare26_registered_users';
 
 let supabase: any = null;
-let isSupabase = false;
-try {
-  const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL;
-  const SUPABASE_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
-  if (SUPABASE_URL && SUPABASE_KEY) {
-    // lazy require
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { createClient } = require('@supabase/supabase-js');
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    isSupabase = true;
-  }
-} catch (e) {
-  isSupabase = false;
-}
+const isSupabase = false;
 
 interface RegisteredUser {
   email: string;

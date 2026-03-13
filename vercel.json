@@ -8,9 +8,7 @@
     "STRIPE_PRICE_STARTER",
     "STRIPE_PRICE_PRO",
     "STRIPE_PRICE_BUSINESS",
-    "APP_BASE_URL",
-    "SUPABASE_URL",
-    "SUPABASE_SERVICE_ROLE_KEY"
+    "APP_BASE_URL"
   ],
   "functions": {
     "api/**/*.ts": {

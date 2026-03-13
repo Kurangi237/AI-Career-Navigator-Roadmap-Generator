@@ -8,20 +8,7 @@ const LOCAL_KEYS = {
 };
 
 let supabase: any = null;
-let isSupabase = false;
-
-try {
-  const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL;
-  const SUPABASE_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
-  if (SUPABASE_URL && SUPABASE_KEY) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { createClient } = require('@supabase/supabase-js');
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    isSupabase = true;
-  }
-} catch {
-  isSupabase = false;
-}
+const isSupabase = false;
 
 const readJson = <T>(key: string, fallback: T): T => {
   try {

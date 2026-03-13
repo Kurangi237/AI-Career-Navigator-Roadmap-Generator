@@ -1,23 +1,7 @@
 ﻿import { Notification } from '@shared/types';
 
 let supabase: any = null;
-let isSupabase = false;
-
-try {
-  // Vite env vars
-  const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL;
-  const SUPABASE_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
-  if (SUPABASE_URL && SUPABASE_KEY) {
-    // lazy import to avoid build issues when not used
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { createClient } = require('@supabase/supabase-js');
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    isSupabase = true;
-  }
-} catch (e) {
-  // ignore - supabase not configured or package missing
-  isSupabase = false;
-}
+const isSupabase = false;
 
 const LOCAL_KEY = 'AI_Career_notifications';
 
