@@ -30,6 +30,39 @@ const COUNTRY_CODE_MAP: Record<string, string> = {
   Dubai: 'ae',
 };
 
+const CURATED_FALLBACK: Record<string, Array<{ title: string; source: string; link: string; location: string; country: string }>> = {
+  All: [
+    { title: 'Software Engineer Openings', source: 'LinkedIn', link: 'https://www.linkedin.com/jobs/search/?keywords=software%20engineer', location: 'Global', country: 'Global' },
+    { title: 'IT & Non-IT Jobs', source: 'Indeed', link: 'https://www.indeed.com/jobs?q=software+engineer', location: 'Global', country: 'Global' },
+    { title: 'Remote Developer Jobs', source: 'Remotive', link: 'https://remotive.com/remote-jobs/software-dev', location: 'Remote', country: 'Remote' },
+  ],
+  India: [
+    { title: 'Software Engineer Jobs in India', source: 'Naukri', link: 'https://www.naukri.com/software-engineer-jobs', location: 'India', country: 'India' },
+    { title: 'Developer Jobs in India', source: 'Foundit', link: 'https://www.foundit.in/srp/results?query=software%20engineer', location: 'India', country: 'India' },
+    { title: 'Internships & Fresher Roles', source: 'Internshala', link: 'https://internshala.com/jobs', location: 'India', country: 'India' },
+  ],
+  USA: [
+    { title: 'Software Engineer Jobs in USA', source: 'Indeed', link: 'https://www.indeed.com/jobs?q=software+engineer&l=United+States', location: 'USA', country: 'USA' },
+    { title: 'LinkedIn USA Openings', source: 'LinkedIn', link: 'https://www.linkedin.com/jobs/search/?keywords=software%20engineer&location=United%20States', location: 'USA', country: 'USA' },
+    { title: 'Federal Tech Openings', source: 'USAJobs', link: 'https://www.usajobs.gov/Search/Results?k=software', location: 'USA', country: 'USA' },
+  ],
+  UK: [
+    { title: 'Software Engineer Jobs UK', source: 'Indeed', link: 'https://uk.indeed.com/jobs?q=software+engineer', location: 'UK', country: 'UK' },
+    { title: 'Developer Roles UK', source: 'Reed', link: 'https://www.reed.co.uk/jobs/software-engineer-jobs', location: 'UK', country: 'UK' },
+    { title: 'UK Public Jobs', source: 'GOV.UK Jobs', link: 'https://www.gov.uk/find-a-job', location: 'UK', country: 'UK' },
+  ],
+  Australia: [
+    { title: 'Software Engineer Jobs AU', source: 'Indeed', link: 'https://au.indeed.com/jobs?q=software+engineer', location: 'Australia', country: 'Australia' },
+    { title: 'Tech Jobs Australia', source: 'Seek', link: 'https://www.seek.com.au/software-engineer-jobs', location: 'Australia', country: 'Australia' },
+    { title: 'Australia Jobs Aggregator', source: 'Jora', link: 'https://au.jora.com/Software-Engineer-jobs', location: 'Australia', country: 'Australia' },
+  ],
+  Dubai: [
+    { title: 'Software Engineer Jobs Dubai', source: 'Indeed', link: 'https://ae.indeed.com/jobs?q=software+engineer', location: 'Dubai, UAE', country: 'Dubai' },
+    { title: 'Middle East Tech Roles', source: 'Bayt', link: 'https://www.bayt.com/en/uae/jobs/software-engineer-jobs/', location: 'Dubai, UAE', country: 'Dubai' },
+    { title: 'Gulf Professional Jobs', source: 'GulfTalent', link: 'https://www.gulftalent.com/uae/jobs', location: 'Dubai, UAE', country: 'Dubai' },
+  ],
+};
+
 const clean = (text: string) =>
   (text || '')
     .replace(/<\/(p|div|li|br|h1|h2|h3|h4|h5|h6)>/gi, '\n')
@@ -143,7 +176,6 @@ const fromArbeitnow = async (query: string): Promise<Job[]> => {
   const arbeit: any = await safeFetch('https://www.arbeitnow.com/api/job-board-api');
   const rows = Array.isArray(arbeit?.data) ? arbeit.data : [];
   return rows
-    .filter((j: any) => `${j.title || ''} ${j.company_name || ''} ${(j.tags || []).join(' ')}`.toLowerCase().includes(query.toLowerCase()))
     .slice(0, 250)
     .map((j: any) => {
       const description = clean(j.description || '');
@@ -163,6 +195,26 @@ const fromArbeitnow = async (query: string): Promise<Job[]> => {
         visa_sponsorship: inferVisa(description),
       };
     });
+};
+
+const fallbackJobs = (country: string, query: string): Job[] => {
+  const bucket = CURATED_FALLBACK[country] || CURATED_FALLBACK.All;
+  const q = query || 'jobs';
+  return bucket.map((x, idx) => ({
+    id: `fallback-${country}-${idx}`,
+    title: x.title,
+    company: `${x.source} Listings`,
+    location: x.location,
+    country: x.country,
+    source: x.source,
+    link: x.link,
+    posted_at: new Date().toISOString(),
+    tags: ['fallback', q],
+    description: `Fallback listing route for ${q}. Open source link for live openings.`,
+    employment_type: '',
+    salary: '',
+    visa_sponsorship: 'Unknown',
+  }));
 };
 
 const fromJSearch = async (query: string, country: string): Promise<Job[]> => {
@@ -248,6 +300,11 @@ export default async function handler(req: any, res: any) {
     if (workMode === 'Hybrid') out = out.filter((j) => /hybrid/i.test(`${j.location} ${j.description}`));
     if (workMode === 'Onsite') out = out.filter((j) => !/remote|hybrid/i.test(`${j.location} ${j.description}`));
 
+    const allProvidersEmpty = providers.every((p) => p.count === 0);
+    if (!out.length) {
+      out = fallbackJobs(country, query);
+    }
+
     out = out.slice(0, maxJobs);
 
     const bySource = out.reduce((acc: Record<string, number>, j) => {
@@ -262,7 +319,10 @@ export default async function handler(req: any, res: any) {
       country,
       providers,
       bySource,
-      configWarnings: process.env.RAPIDAPI_JSEARCH_KEY ? [] : ['LinkedIn/Indeed/Naukri/Foundit ingestion needs RAPIDAPI_JSEARCH_KEY'],
+      configWarnings: [
+        ...(process.env.RAPIDAPI_JSEARCH_KEY ? [] : ['LinkedIn/Indeed/Naukri/Foundit ingestion needs RAPIDAPI_JSEARCH_KEY']),
+        ...(allProvidersEmpty ? ['External providers returned 0 results in this runtime window; fallback feed is shown.'] : []),
+      ],
       updatedAt: new Date().toISOString(),
       cache: { hit: false, maxAgeMs: 0 },
     });
@@ -270,4 +330,3 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: err?.message || 'server error' });
   }
 }
-
