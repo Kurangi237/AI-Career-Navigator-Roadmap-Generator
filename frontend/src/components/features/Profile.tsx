@@ -71,6 +71,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
       last70,
     };
   }, [user.email, savePulse]);
+  const showCodingDetail = coding.solved > 0 || coding.streak > 0 || coding.attempted > 1;
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -78,7 +79,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
 
     // Validate file size (max 2MB before compression)
     if (file.size > 2 * 1024 * 1024) {
-      setSaveMsg('❌ Image too large (max 2MB). Please choose a smaller image.');
+      setSaveMsg('Image too large (max 2MB). Please choose a smaller image.');
       return;
     }
 
@@ -143,7 +144,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
       // Check localStorage size before saving large images
       const serialized = JSON.stringify(payload);
       if (serialized.length > 4000000) { // ~4MB limit
-        setSaveMsg('❌ Image file too large. Please use a smaller image.');
+        setSaveMsg('Image file too large. Please use a smaller image.');
         setTimeout(() => setSaving(false), 350);
         return;
       }
@@ -152,7 +153,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
       const updated = updateUserProfile(payload);
 
       if (!updated) {
-        setSaveMsg('❌ Failed to save profile. Please try again.');
+        setSaveMsg('Failed to save profile. Please try again.');
         setTimeout(() => setSaving(false), 350);
         return;
       }
@@ -160,7 +161,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
       // Verify localStorage persistence
       const stored = localStorage.getItem('KBV_user_profile');
       if (!stored) {
-        setSaveMsg('❌ Storage error. Check browser storage settings.');
+        setSaveMsg('Storage error. Check browser storage settings.');
         setTimeout(() => setSaving(false), 350);
         return;
       }
@@ -169,12 +170,12 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
       setUser(updated);
       setFormData(updated);
       setIsEditing(false);
-      setSaveMsg('✓ Profile saved successfully');
+      setSaveMsg('Profile saved successfully');
       setSavePulse(true);
       setTimeout(() => setSavePulse(false), 900);
       setTimeout(() => setSaveMsg(''), 2200);
     } catch (error) {
-      setSaveMsg(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setSaveMsg(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setTimeout(() => setSaving(false), 350);
     }
@@ -186,13 +187,13 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 animate-fade-in">
-      <button onClick={onBack} className="text-slate-500 hover:text-slate-800 font-medium flex items-center gap-2 mb-2">
+    <div className="max-w-6xl mx-auto space-y-6 premium-page">
+      <button onClick={onBack} className="text-slate-300 hover:text-white font-medium flex items-center gap-2 mb-2">
         Back to Dashboard
       </button>
 
-      <div className={`bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all ${savePulse ? 'scale-[1.01] ring-2 ring-orange-300' : ''}`}>
-        <div className="h-32 bg-gradient-to-r from-orange-600 to-orange-700" />
+      <div className={`glass-panel rounded-2xl shadow-sm border border-slate-700 overflow-hidden transition-all premium-card ${savePulse ? 'scale-[1.01] ring-2 ring-blue-400/60' : ''}`}>
+        <div className="h-32 bg-gradient-to-r from-blue-700 to-indigo-700" />
 
         <div className="px-8 pb-8">
           <div className="relative flex justify-between items-end -mt-12 mb-6">
@@ -202,7 +203,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
                   {imagePreview ? <img src={imagePreview} alt="Profile" className="w-full h-full object-cover" /> : formData.name.charAt(0).toUpperCase()}
                 </div>
                 {isEditing && (
-                  <label className="absolute bottom-0 right-0 bg-orange-600 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-orange-700">
+                  <label className="absolute bottom-0 right-0 bg-blue-600 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-blue-700">
                     Edit
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
@@ -215,25 +216,25 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="text-2xl font-bold text-slate-900 border-b border-slate-300 focus:outline-none focus:border-orange-600 bg-transparent"
+                    className="text-2xl font-bold text-white border-b border-slate-500 focus:outline-none focus:border-blue-400 bg-transparent"
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold text-slate-900">{formData.name}</h1>
+                  <h1 className="text-2xl font-bold text-white">{formData.name}</h1>
                 )}
-                <p className="text-slate-500">{formData.email}</p>
+                <p className="text-slate-300">{formData.email}</p>
               </div>
             </div>
 
             <div className="flex gap-3">
               {!isEditing ? (
                 <>
-                  <button onClick={() => setIsEditing(true)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50">Edit Profile</button>
+                  <button onClick={() => setIsEditing(true)} className="px-4 py-2 border border-slate-500 rounded-lg text-slate-200 font-medium hover:bg-slate-700/50">Edit Profile</button>
                   <button onClick={handleLogout} className="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg font-medium hover:bg-red-100">Sign Out</button>
                 </>
               ) : (
                 <>
-                  <button onClick={() => setIsEditing(false)} className="px-4 py-2 border border-slate-300 rounded-lg text-slate-600 font-medium hover:bg-slate-50">Cancel</button>
-                  <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 disabled:opacity-60">
+                  <button onClick={() => setIsEditing(false)} className="px-4 py-2 border border-slate-500 rounded-lg text-slate-300 font-medium hover:bg-slate-700/50">Cancel</button>
+                  <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60">
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </>
@@ -241,55 +242,55 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
             </div>
           </div>
 
-          {saveMsg && <p className="text-sm text-emerald-600 mb-3">{saveMsg}</p>}
+          {saveMsg && <p className="text-sm text-blue-300 mb-3">{saveMsg}</p>}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-100">
-                <h3 className="text-lg font-bold text-slate-800 mb-4">Career Goals</h3>
+              <div className="bg-slate-900/60 p-6 rounded-xl border border-slate-700 premium-card">
+                <h3 className="text-lg font-bold text-slate-100 mb-4">Career Goals</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Account Role</label>
-                    <p className="text-slate-900 font-medium capitalize">{formData.role}</p>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Account Role</label>
+                    <p className="text-slate-100 font-medium capitalize">{formData.role}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Subscription Plan</label>
-                    <p className="text-slate-900 font-medium capitalize">{formData.subscriptionPlan}</p>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Subscription Plan</label>
+                    <p className="text-slate-100 font-medium capitalize">{formData.subscriptionPlan}</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Target Role</label>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Target Role</label>
                     {isEditing ? (
                       <input
                         type="text"
                         value={formData.targetRole || ''}
                         onChange={(e) => setFormData({ ...formData, targetRole: e.target.value })}
-                        className="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-orange-500"
+                        className="w-full p-2 border border-slate-600 rounded focus:ring-2 focus:ring-blue-500"
                       />
                     ) : (
-                      <p className="text-slate-900 font-medium">{formData.targetRole || 'Not set'}</p>
+                      <p className="text-slate-100 font-medium">{formData.targetRole || 'Not set'}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Current Skills</label>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Current Skills</label>
                     {isEditing ? (
                       <textarea
                         rows={3}
                         value={formData.skills || ''}
                         onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                        className="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-orange-500"
+                        className="w-full p-2 border border-slate-600 rounded focus:ring-2 focus:ring-blue-500"
                       />
                     ) : (
-                      <p className="text-slate-900">{formData.skills || 'No skills listed yet.'}</p>
+                      <p className="text-slate-100">{formData.skills || 'No skills listed yet.'}</p>
                     )}
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-3">Social Profiles</h3>
+                  <h3 className="text-lg font-bold text-slate-100 mb-3">Social Profiles</h3>
                   <p className="text-sm text-slate-500 mb-3">Add your professional and coding profile links.</p>
 
                   {[
@@ -301,7 +302,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
                     const existing = formData.socialMedia?.find((s) => s.platform === item.key as any)?.url || '';
                     return (
                       <div key={item.key} className="mb-3">
-                        <label className="block text-xs font-medium text-slate-600 mb-1">{item.label}</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-1">{item.label}</label>
                         {isEditing ? (
                           <input
                             type="text"
@@ -315,11 +316,11 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
                               setFormData({ ...formData, socialMedia: copy });
                             }}
                             placeholder={item.placeholder}
-                            className="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-orange-500"
+                            className="w-full p-2 border border-slate-600 rounded focus:ring-2 focus:ring-blue-500"
                           />
                         ) : (
-                          <p className="text-slate-700 text-sm">
-                            {existing ? <a href={existing} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline">Visit profile</a> : 'Not added'}
+                          <p className="text-slate-300 text-sm">
+                            {existing ? <a href={existing} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Visit profile</a> : 'Not added'}
                           </p>
                         )}
                       </div>
@@ -330,16 +331,18 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-6 shadow-sm premium-card">
                 <h3 className="text-sm font-bold text-slate-400 uppercase mb-4">Coding Profile</h3>
+                {showCodingDetail ? (
+                  <>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full grid place-items-center text-xs font-bold text-slate-900" style={{ background: `conic-gradient(#ea580c ${coding.percent}%, #e2e8f0 0)` }}>
-                    <div className="w-14 h-14 rounded-full bg-white grid place-items-center">{coding.percent}%</div>
+                  <div className="w-20 h-20 rounded-full grid place-items-center text-xs font-bold text-slate-100" style={{ background: `conic-gradient(#2563eb ${coding.percent}%, #e2e8f0 0)` }}>
+                    <div className="w-14 h-14 rounded-full bg-white grid place-items-center text-slate-900">{coding.percent}%</div>
                   </div>
-                  <div className="text-sm text-slate-700">
-                    <p>Solved: <span className="font-semibold text-slate-900">{coding.solved}</span></p>
-                    <p>Attempted: <span className="font-semibold text-slate-900">{coding.attempted}</span></p>
-                    <p>Streak: <span className="font-semibold text-orange-600">{coding.streak} days</span></p>
+                  <div className="text-sm text-slate-300">
+                    <p>Solved: <span className="font-semibold text-slate-100">{coding.solved}</span></p>
+                    <p>Attempted: <span className="font-semibold text-slate-100">{coding.attempted}</span></p>
+                    <p>Streak: <span className="font-semibold text-blue-600">{coding.streak} days</span></p>
                   </div>
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
@@ -351,18 +354,24 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
                   <p className="text-xs font-semibold text-slate-500 mb-2">Submission Heatmap (70 days)</p>
                   <div className="grid grid-cols-10 gap-1">
                     {coding.last70.map((d) => (
-                      <div key={d.day} title={`${d.day}: ${d.count}`} className={`h-3 rounded ${d.count === 0 ? 'bg-slate-100' : d.count < 3 ? 'bg-orange-200' : d.count < 6 ? 'bg-orange-400' : 'bg-orange-600'}`} />
+                      <div key={d.day} title={`${d.day}: ${d.count}`} className={`h-3 rounded ${d.count === 0 ? 'bg-slate-800' : d.count < 3 ? 'bg-blue-200' : d.count < 6 ? 'bg-blue-400' : 'bg-blue-600'}`} />
                     ))}
                   </div>
                 </div>
+                  </>
+                ) : (
+                  <div className="rounded-lg border border-slate-700 bg-slate-800/60 p-4 text-sm text-slate-300">
+                    No meaningful coding data yet. Start solving in `MNC DSA Prep` and this section will auto-populate.
+                  </div>
+                )}
               </div>
 
-              <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-6 shadow-sm premium-card">
                 <h3 className="text-sm font-bold text-slate-400 uppercase mb-4">Your Activity</h3>
                 <div className="space-y-4">
-                  <div className="flex justify-between p-3 bg-orange-50 rounded-lg border border-orange-100">
-                    <span className="font-medium text-orange-800">Saved Roadmaps</span>
-                    <span className="text-2xl font-bold text-orange-600">{stats.roadmaps}</span>
+                  <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
+                    <span className="font-medium text-blue-800">Saved Roadmaps</span>
+                    <span className="text-2xl font-bold text-blue-600">{stats.roadmaps}</span>
                   </div>
                   <div className="flex justify-between p-3 bg-blue-50 rounded-lg border border-blue-100">
                     <span className="font-medium text-blue-800">Saved Courses</span>
@@ -384,3 +393,7 @@ const Profile: React.FC<Props> = ({ user, setUser, onBack }) => {
 };
 
 export default Profile;
+
+
+
+

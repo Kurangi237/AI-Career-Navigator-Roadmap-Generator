@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { getJobRoleDetails } from '../../services/geminiService';
 import { JobRoleResponse } from '@shared/types';
 
@@ -103,3 +103,4 @@ const RoleIntel: React.FC<Props> = ({ onBack }) => {
 };
 
 export default RoleIntel;
+

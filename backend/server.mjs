@@ -78,6 +78,9 @@ async function setupRoutes() {
     { method: 'post', path: '/api/arena/submissions/create', file: './backend/api/arena/submissions-create.ts' },
     { method: 'get', path: '/api/arena/contests/list', file: './backend/api/arena/contests-list.ts' },
     { method: 'get', path: '/api/jobs/search', file: './backend/api/jobs/search.ts' },
+    { method: 'get', path: '/api/jobs/events', file: './backend/api/jobs/events.ts' },
+    { method: 'get', path: '/api/jobs/stream', file: './backend/api/jobs/stream.ts' },
+    { method: 'get', path: '/api/jobs/sync', file: './backend/api/jobs/sync.ts' },
   ];
 
   for (const { method, path: routePath, file } of routes) {
@@ -117,6 +120,9 @@ setupRoutes().then(() => {
     console.log('POST /api/arena/submissions/create');
     console.log('GET /api/arena/contests/list');
     console.log('GET /api/jobs/search?q=react');
+    console.log('GET /api/jobs/events?cursor=0&limit=50');
+    console.log('GET /api/jobs/stream?cursor=0');
+    console.log('GET /api/jobs/sync?token=...');
   });
 });
 

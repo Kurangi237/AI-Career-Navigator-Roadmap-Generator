@@ -1,22 +1,27 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import Navigation from './components/common/Sidebar';
-import RoadmapGenerator from './components/features/RoadmapGenerator';
-import CourseRecommender from './components/features/CourseRecommender';
-import ResumeAnalyzer from './components/features/ResumeAnalyzer';
-import RoleIntel from './components/features/RoleIntel';
-import ChatAssistant from './components/features/ChatAssistant';
-import SavedItems from './components/features/SavedItems';
-import JobSearch from './components/features/JobSearch';
-import CodingArena from './components/features/CodingArena';
 import Login from './components/common/Login';
-import Profile from './components/features/Profile';
+import StatePanel from './components/common/StatePanel';
 import { ViewState, UserProfile, Notification } from '@shared/types';
 import { getCurrentUser } from './services/authService';
 import { uuidv4 } from './utils/uuid';
 import notificationService from './services/notificationService';
 import { canAccessView, getDefaultViewForRole, roleViewAccess } from './auth/permissions';
 import { getPracticeStatsSync } from './services/practiceService';
+import { getSavedCourses, getSavedJobs, getSavedResumeDrafts, getSavedRoadmaps } from './services/storageService';
+import { trackEvent } from './services/analyticsService';
 
+const RoadmapGenerator = lazy(() => import('./components/features/RoadmapGenerator'));
+const CourseRecommender = lazy(() => import('./components/features/CourseRecommender'));
+const ResumeAnalyzer = lazy(() => import('./components/features/ResumeAnalyzer'));
+const RoleIntel = lazy(() => import('./components/features/RoleIntel'));
+const ChatAssistant = lazy(() => import('./components/features/ChatAssistant'));
+const SavedItems = lazy(() => import('./components/features/SavedItems'));
+const JobSearch = lazy(() => import('./components/features/JobSearch'));
+const MNCDSAPrepHub = lazy(() => import('./components/features/MNCDSAPrepHub'));
+const PortfolioGenerator = lazy(() => import('./components/features/PortfolioGenerator'));
+const Profile = lazy(() => import('./components/features/Profile'));
+const AnalyticsDashboard = lazy(() => import('./components/features/AnalyticsDashboard'));
 declare global {
   interface Window {
     gsap?: {
@@ -33,27 +38,31 @@ const DASHBOARD_CARDS = [
   { title: 'Course Finder', desc: 'Ranked learning paths by role and budget.', view: ViewState.COURSES, icon: 'LEARN' },
   { title: 'Job Search', desc: 'Curated company and startup pipelines.', view: ViewState.JOB_SEARCH, icon: 'HIRE' },
   { title: 'Analyze Resume', desc: 'AI gap analysis with hiring signal checks.', view: ViewState.RESUME, icon: 'CV' },
+  { title: 'Portfolio Generator', desc: 'Build your student portfolio with projects and achievements.', view: ViewState.PORTFOLIO, icon: 'PORT' },
+  { title: 'Analytics', desc: 'Track product events and usage trends.', view: ViewState.ANALYTICS, icon: 'DATA' },
   { title: 'Role Intelligence', desc: 'Compensation, skills, and role demand.', view: ViewState.ROLE_INTEL, icon: 'INTEL' },
   { title: 'AI Coach', desc: 'Real-time prep for interviews and growth.', view: ViewState.CHAT, icon: 'COPILOT' },
   { title: 'Saved Items', desc: 'Persist your strategy and learning stack.', view: ViewState.SAVED_ITEMS, icon: 'VAULT' }
 ];
 
-const LANGUAGES = ['Java', 'Python', 'C', 'C++', 'JavaScript', 'TypeScript', 'Go', 'Rust', 'SQL', 'Kotlin', 'Swift', 'C#'];
-const CS_SUBJECTS = ['Computer Networks', 'Operating Systems', 'DBMS', 'System Design', 'Software Engineering', 'Compiler Design', 'OOP', 'Distributed Systems', 'Cloud Computing', 'Computer Architecture'];
-const HOME_LEARNING_ITEMS = [
-  { title: 'Java Interview Patterns', type: 'Tutorial', pricing: 'Free' },
-  { title: 'OS Process Scheduling Deep Dive', type: 'Article', pricing: 'Free' },
-  { title: 'Network Protocols for Interviews', type: 'Tutorial', pricing: 'Paid' },
-  { title: 'DSA for Backend Engineers', type: 'Tutorial', pricing: 'Free' },
-  { title: 'System Design Case Study Pack', type: 'Article', pricing: 'Paid' },
-  { title: 'Database Indexing Explained', type: 'Article', pricing: 'Free' },
-  { title: 'Concurrency in Java', type: 'Tutorial', pricing: 'Paid' },
-  { title: 'Software Engineering Principles', type: 'Article', pricing: 'Free' },
-  { title: 'C++ STL Master Track', type: 'Tutorial', pricing: 'Paid' },
-  { title: 'Computer Architecture Primer', type: 'Article', pricing: 'Free' },
-  { title: 'Python for Coding Rounds', type: 'Tutorial', pricing: 'Free' },
-  { title: 'Distributed Systems Intro', type: 'Article', pricing: 'Paid' },
-];
+const JOB_ALERT_SEEN_KEY = 'AI_Career_seen_jobs';
+const JOB_EVENT_CURSOR_KEY = 'AI_Career_job_event_cursor';
+type JobCountryRoute = 'All' | 'India' | 'UK' | 'USA' | 'Australia' | 'Dubai';
+const countryToSegment = (country: JobCountryRoute) => (country === 'All' ? 'all' : country.toLowerCase());
+const segmentToCountry = (segment: string): JobCountryRoute => {
+  const s = (segment || '').toLowerCase();
+  if (s === 'india') return 'India';
+  if (s === 'uk') return 'UK';
+  if (s === 'usa') return 'USA';
+  if (s === 'australia') return 'Australia';
+  if (s === 'dubai') return 'Dubai';
+  return 'All';
+};
+const parseJobsPath = (pathname: string): JobCountryRoute | null => {
+  const match = pathname.match(/^\/jobs(?:\/([a-z-]+))?\/?$/i);
+  if (!match) return null;
+  return segmentToCountry(match[1] || 'all');
+};
 
 const LiquidParticles: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -85,7 +94,7 @@ const LiquidParticles: React.FC = () => {
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(251,146,60,0.55)';
+        ctx.fillStyle = 'rgba(96,165,250,0.6)';
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       });
@@ -145,9 +154,34 @@ const Dashboard: React.FC<{ setView: (v: ViewState) => void; user: UserProfile }
   }, []);
 
   const visibleCards = DASHBOARD_CARDS.filter((card) => canAccessView(user.role, card.view));
+  const careerMetrics = useMemo(() => {
+    const roadmaps = getSavedRoadmaps().length;
+    const courses = getSavedCourses().length;
+    const jobs = getSavedJobs().length;
+    const resumeDrafts = getSavedResumeDrafts().length;
+    const practice = Math.min(100, liveStats.streakDays * 6 + (liveStats.accuracy || 0) * 0.5);
+    const score = Math.round(
+      Math.min(
+        100,
+        roadmaps * 12 +
+          courses * 6 +
+          jobs * 4 +
+          resumeDrafts * 8 +
+          practice * 0.5
+      )
+    );
+    const trend = [score - 12, score - 8, score - 5, score - 2, score].map((v) => Math.max(5, Math.min(100, v)));
+    const reminders = [
+      roadmaps === 0 ? 'Generate one roadmap for your target role.' : null,
+      jobs < 3 ? 'Save at least 3 matching jobs and track stages.' : null,
+      resumeDrafts === 0 ? 'Create a resume draft and run ATS optimization.' : null,
+      liveStats.streakDays < 2 ? 'Complete one DSA session today to keep momentum.' : null,
+    ].filter(Boolean) as string[];
+    return { score, trend, reminders };
+  }, [liveStats.accuracy, liveStats.streakDays]);
 
   return (
-    <div ref={rootRef} className="space-y-8 py-4">
+    <div ref={rootRef} className="space-y-8 py-4 premium-page">
       <section data-hero className="glass-panel rounded-2xl p-8 md:p-10 relative overflow-hidden">
         <LiquidParticles />
         <div className="flex flex-wrap items-center justify-between gap-6">
@@ -193,68 +227,61 @@ const Dashboard: React.FC<{ setView: (v: ViewState) => void; user: UserProfile }
         ))}
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div data-scroll className="glass-panel rounded-2xl p-5 lg:col-span-2">
-          <h2 className="text-lg text-white font-bold">Today's MNC Interview Prep</h2>
-          <div className="mt-3 space-y-2 text-sm text-slate-300">
-            <p>1. Solve 3 DSA problems from your target company path.</p>
-            <p>2. Complete mock interview simulation and review feedback.</p>
-            <p>3. Study one weak DSA topic with company-specific examples.</p>
-          </div>
-        </div>
-        <div data-scroll className="glass-panel rounded-2xl p-5">
-          <h2 className="text-lg text-white font-bold">Live Pulse</h2>
-          <div className="mt-3 text-sm text-slate-300 space-y-1">
-            <p>Practice streak: {liveStats.streakDays} days</p>
-            <p>Accuracy: {liveStats.accuracy}%</p>
-            <p>Solved today XP: {liveStats.todayXp}</p>
-          </div>
+      <section data-scroll className="glass-panel rounded-2xl p-5 premium-card">
+        <h2 className="text-lg text-white font-bold">Today's MNC Interview Prep</h2>
+        <div className="mt-3 space-y-2 text-sm text-slate-300">
+          <p>1. Solve 3 DSA problems from your selected company path.</p>
+          <p>2. Complete one timed mock round and review your weak patterns.</p>
+          <p>3. Update resume with one quantified impact point before applying.</p>
         </div>
       </section>
 
-      <section data-scroll className="glass-panel rounded-2xl p-6">
-        <h2 className="text-xl text-slate-100 font-bold">Founder Note</h2>
-        <p className="text-slate-300 mt-2 leading-relaxed">
-          This product is now structured as an extensible platform: intelligence APIs, reusable UI modules, and startup-focused user workflows.
-        </p>
-      </section>
-
-      <section data-scroll className="glass-panel rounded-2xl p-6">
-        <h2 className="text-xl text-slate-100 font-bold">Languages & Core CS</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {LANGUAGES.slice(0, 10).map((x) => <span key={x} className="px-3 py-1 text-xs rounded border border-orange-400/30 text-orange-200">{x}</span>)}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {CS_SUBJECTS.slice(0, 8).map((x) => <span key={x} className="px-3 py-1 text-xs rounded border border-slate-500/40 text-slate-200">{x}</span>)}
-        </div>
-      </section>
-
-      <section data-scroll className="glass-panel rounded-2xl p-6">
+      <section data-scroll className="glass-panel rounded-2xl p-5 premium-card">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl text-slate-100 font-bold">Featured Learning</h2>
-          <button
-            onClick={() => setView(ViewState.COURSES)}
-            className="text-xs px-3 py-1.5 rounded bg-orange-500 text-white hover:bg-orange-600"
-          >
-            View All
-          </button>
+          <h2 className="text-lg text-white font-bold">Career Score</h2>
+          <p className="text-2xl font-bold text-cyan-300">{careerMetrics.score}/100</p>
         </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {HOME_LEARNING_ITEMS.slice(0, 6).map((x) => (
-            <button key={x.title} onClick={() => setView(ViewState.COURSES)} className="distort-hover rounded-lg border border-orange-500/20 p-3 bg-slate-900/40 text-left">
-              <p className="text-sm font-semibold text-white">{x.title}</p>
-              <p className="text-xs text-slate-300 mt-1">{x.type} · {x.pricing}</p>
-            </button>
+        <div className="mt-3 h-2 w-full rounded bg-slate-800 overflow-hidden">
+          <div className="h-2 rounded bg-cyan-400" style={{ width: `${careerMetrics.score}%` }} />
+        </div>
+        <div className="mt-3 flex items-end gap-1 h-10">
+          {careerMetrics.trend.map((v, i) => (
+            <div key={i} className="flex-1 rounded-t bg-blue-500/60" style={{ height: `${Math.max(15, v)}%` }} />
+          ))}
+        </div>
+        <div className="mt-3 space-y-1">
+          {(careerMetrics.reminders.length ? careerMetrics.reminders : ['You are on track. Keep applying and practicing daily.']).map((r) => (
+            <p key={r} className="text-xs text-slate-300">- {r}</p>
           ))}
         </div>
       </section>
 
-      <section data-scroll className="glass-panel rounded-2xl p-6">
-        <h2 className="text-xl text-slate-100 font-bold">About MNC DSA Prep Hub</h2>
-        <p className="text-slate-300 mt-2 leading-relaxed">
-          Master Data Structures and Algorithms following the exact patterns asked at top MNC companies. Get company-specific learning paths, mock interviews, and resources to crack your dream job interviews at Google, Meta, Amazon, Microsoft, and more.
-        </p>
+      <section data-scroll className="glass-panel rounded-2xl p-6 premium-card">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl text-slate-100 font-bold">Execution Board</h2>
+          <button
+            onClick={() => setView(ViewState.JOB_SEARCH)}
+            className="text-xs px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Open Jobs
+          </button>
+        </div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 premium-stagger">
+          <button onClick={() => setView(ViewState.CODING_ARENA)} className="distort-hover rounded-lg border border-blue-500/30 p-4 bg-slate-900/40 text-left premium-card">
+            <p className="text-sm font-semibold text-white">Practice Target</p>
+            <p className="text-xs text-slate-300 mt-1">DSA streak: {liveStats.streakDays} days</p>
+          </button>
+          <button onClick={() => setView(ViewState.ROADMAP)} className="distort-hover rounded-lg border border-blue-500/30 p-4 bg-slate-900/40 text-left premium-card">
+            <p className="text-sm font-semibold text-white">Roadmap Target</p>
+            <p className="text-xs text-slate-300 mt-1">Keep weekly milestones on track</p>
+          </button>
+          <button onClick={() => setView(ViewState.RESUME)} className="distort-hover rounded-lg border border-blue-500/30 p-4 bg-slate-900/40 text-left premium-card">
+            <p className="text-sm font-semibold text-white">Resume Target</p>
+            <p className="text-xs text-slate-300 mt-1">Run ATS + JD alignment before applying</p>
+          </button>
+        </div>
       </section>
+
     </div>
   );
 };
@@ -263,9 +290,12 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewState>(ViewState.LOGIN);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const notificationsRef = useRef<Notification[]>([]);
   const [selectedJobLink, setSelectedJobLink] = useState<string | null>(null);
+  const [resumeJobDescription, setResumeJobDescription] = useState('');
+  const [jobCountryRoute, setJobCountryRoute] = useState<JobCountryRoute>('All');
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const seenJobKeysRef = useRef<Set<string>>(new Set());
+  const jobEventCursorRef = useRef<number>(0);
   const roleAllowedViews = user ? roleViewAccess[user.role] : [];
   const allowedViews = roleAllowedViews;
 
@@ -273,8 +303,29 @@ const App: React.FC = () => {
     if (!notificationService.isSupabaseEnabled()) {
       localStorage.setItem('AI_Career_notifications', JSON.stringify(notifications));
     }
-    notificationsRef.current = notifications;
   }, [notifications]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(JOB_ALERT_SEEN_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(arr)) {
+        seenJobKeysRef.current = new Set(arr.slice(0, 6000));
+      }
+    } catch {
+      seenJobKeysRef.current = new Set();
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(JOB_EVENT_CURSOR_KEY);
+      const value = raw ? Number(raw) : 0;
+      jobEventCursorRef.current = Number.isFinite(value) ? value : 0;
+    } catch {
+      jobEventCursorRef.current = 0;
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -318,6 +369,36 @@ const App: React.FC = () => {
     notificationService.saveNotification(newNotif).catch((err: any) => console.error(err));
   };
 
+  const persistSeenJobs = () => {
+    try {
+      localStorage.setItem(JOB_ALERT_SEEN_KEY, JSON.stringify(Array.from(seenJobKeysRef.current).slice(-6000)));
+    } catch (e) {
+      console.error('Failed to persist seen jobs', e);
+    }
+  };
+
+  const notifyOnlyNewJobs = (jobs: { title: string; company?: string; location?: string; link: string }[], maxNotifications = 3) => {
+    let sent = 0;
+    for (const job of jobs) {
+      const key = `${job.title}|${job.company || ''}|${job.link}`.toLowerCase().trim();
+      if (!key) continue;
+      if (seenJobKeysRef.current.has(key)) continue;
+      seenJobKeysRef.current.add(key);
+      if (sent < maxNotifications) {
+        addNotification({
+          type: 'job',
+          title: `New: ${job.title}`,
+          message: `${job.company || 'Company'} - ${job.location || ''}`.trim(),
+          link: job.link,
+          priority: 'medium',
+          category: 'opportunity'
+        });
+        sent += 1;
+      }
+    }
+    if (sent > 0) persistSeenJobs();
+  };
+
   const markAsRead = (id: string) => {
     setNotifications((s) => s.map((n) => (n.id === id ? { ...n, read: true } : n)));
     notificationService.markAsReadRemote(id).catch((err: any) => console.error(err));
@@ -329,42 +410,108 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!user) return;
     let mounted = true;
-    const poll = async () => {
+    const pollJobEvents = async () => {
       if (!mounted) return;
-      if (notificationsRef.current.length === 0) {
-        addNotification({
-          type: 'job',
-          title: 'New job openings available',
-          message: 'Top companies posted new roles. Check job search.',
-          priority: 'medium',
-          category: 'opportunity',
-          link: '/jobs'
-        });
+      try {
+        const resp = await fetch(`/api/jobs/events?cursor=${jobEventCursorRef.current}&limit=120`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const events = Array.isArray(data?.events) ? data.events : [];
+        const nextCursor = Number(data?.cursor || jobEventCursorRef.current);
+        if (Number.isFinite(nextCursor)) {
+          jobEventCursorRef.current = nextCursor;
+          localStorage.setItem(JOB_EVENT_CURSOR_KEY, String(nextCursor));
+        }
+        const mapped = events.map((e: any) => ({
+          title: e.title || 'Job',
+          company: e.company || '',
+          location: e.location || '',
+          link: e.link || ''
+        })).filter((e: any) => e.link);
+        notifyOnlyNewJobs(mapped, 5);
+      } catch (e) {
+        console.error('Background job event poll failed', e);
       }
     };
 
-    const id = setInterval(poll, 60_000);
-    poll();
+    const id = setInterval(pollJobEvents, 30_000);
+    pollJobEvents();
     return () => {
       mounted = false;
       clearInterval(id);
     };
-  }, []);
+  }, [user?.email, user?.targetRole]);
+
+  useEffect(() => {
+    if (!user) return;
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(`/api/jobs/stream?cursor=${jobEventCursorRef.current}`);
+      es.onmessage = (ev) => {
+        try {
+          const payload = JSON.parse(ev.data || '{}');
+          if (typeof payload?.cursor === 'number' && Number.isFinite(payload.cursor)) {
+            jobEventCursorRef.current = payload.cursor;
+            localStorage.setItem(JOB_EVENT_CURSOR_KEY, String(payload.cursor));
+          }
+          if (payload?.type !== 'events' || !Array.isArray(payload?.events)) return;
+          const mapped = payload.events.map((e: any) => ({
+            title: e.title || 'Job',
+            company: e.company || '',
+            location: e.location || '',
+            link: e.link || ''
+          })).filter((x: any) => x.link);
+          notifyOnlyNewJobs(mapped, 5);
+        } catch (e) {
+          console.error('SSE payload parse error', e);
+        }
+      };
+      es.onerror = () => {
+        try { es?.close(); } catch { /* ignore */ }
+      };
+    } catch (e) {
+      console.error('Failed to open job SSE stream', e);
+    }
+    return () => {
+      try { es?.close(); } catch { /* ignore */ }
+    };
+  }, [user?.email]);
 
   useEffect(() => {
     const currentUser = getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-      setCurrentView(ViewState.DASHBOARD);
+      const deepLinkCountry = parseJobsPath(window.location.pathname);
+      if (deepLinkCountry) {
+        setJobCountryRoute(deepLinkCountry);
+        setCurrentView(ViewState.JOB_SEARCH);
+      } else {
+        setCurrentView(ViewState.DASHBOARD);
+      }
     } else {
       setCurrentView(ViewState.LOGIN);
     }
   }, []);
 
+  useEffect(() => {
+    const onPopState = () => {
+      if (!user) return;
+      const deepLinkCountry = parseJobsPath(window.location.pathname);
+      if (deepLinkCountry) {
+        setJobCountryRoute(deepLinkCountry);
+        setCurrentView(ViewState.JOB_SEARCH);
+      }
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [user]);
+
   const handleLoginSuccess = (loggedInUser: UserProfile) => {
     setUser(loggedInUser);
     setCurrentView(ViewState.DASHBOARD);
+    trackEvent('login_success', { role: loggedInUser.role, plan: loggedInUser.subscriptionPlan });
   };
 
   const goToDashboard = () => setCurrentView(ViewState.DASHBOARD);
@@ -372,6 +519,7 @@ const App: React.FC = () => {
     if (!user) return;
     if (canAccessView(user.role, view)) {
       setCurrentView(view);
+      trackEvent('view_opened', { view, role: user.role });
       return;
     }
     addNotification({
@@ -401,6 +549,18 @@ const App: React.FC = () => {
     );
   }, [currentView]);
 
+  useEffect(() => {
+    if (!user) return;
+    if (currentView === ViewState.JOB_SEARCH) {
+      const target = `/jobs/${countryToSegment(jobCountryRoute)}`;
+      if (window.location.pathname !== target) {
+        window.history.replaceState({}, '', target);
+      }
+    } else if (window.location.pathname.startsWith('/jobs')) {
+      window.history.replaceState({}, '', '/');
+    }
+  }, [currentView, jobCountryRoute, user]);
+
   if (currentView === ViewState.LOGIN || !user) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
@@ -425,43 +585,65 @@ const App: React.FC = () => {
       />
 
       <main ref={contentRef} className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Suspense
+          fallback={
+            <StatePanel
+              mode="loading"
+              title="Loading section"
+              message="Preparing this module..."
+            />
+          }
+        >
         {currentView === ViewState.DASHBOARD && <Dashboard setView={guardedSetView} user={user} />}
         {currentView === ViewState.PROFILE && <Profile user={user} setUser={setUser} onBack={goToDashboard} />}
-        {currentView === ViewState.CODING_ARENA && <CodingArena user={user} onBack={goToDashboard} />}
+        {currentView === ViewState.CODING_ARENA && <MNCDSAPrepHub onBack={goToDashboard} />}
         {currentView === ViewState.ROADMAP && <RoadmapGenerator onBack={goToDashboard} />}
         {currentView === ViewState.COURSES && <CourseRecommender onBack={goToDashboard} />}
-        {currentView === ViewState.RESUME && <ResumeAnalyzer onBack={goToDashboard} />}
+        {currentView === ViewState.RESUME && (
+          <ResumeAnalyzer
+            onBack={goToDashboard}
+            initialJobDescription={resumeJobDescription}
+            onConsumeInitialJobDescription={() => setResumeJobDescription('')}
+          />
+        )}
+        {currentView === ViewState.PORTFOLIO && <PortfolioGenerator user={user} onBack={goToDashboard} />} 
+        {currentView === ViewState.ANALYTICS && <AnalyticsDashboard onBack={goToDashboard} />}
         {currentView === ViewState.ROLE_INTEL && <RoleIntel onBack={goToDashboard} />}
         {currentView === ViewState.CHAT && <ChatAssistant onBack={goToDashboard} />}
         {currentView === ViewState.SAVED_ITEMS && <SavedItems onBack={goToDashboard} />}
         {currentView === ViewState.JOB_SEARCH && (
           <JobSearch
+            initialCountry={jobCountryRoute}
+            onCountryRouteChange={(next) => setJobCountryRoute(next as JobCountryRoute)}
             selectedJobLink={selectedJobLink}
             onClearSelected={() => setSelectedJobLink(null)}
             onBack={goToDashboard}
             onNotifyJobs={(jobs) => {
-              jobs.slice(0, 5).forEach((job) =>
-                addNotification({
-                  type: 'job',
-                  title: `New: ${job.title}`,
-                  message: `${job.company} - ${job.location || ''}`.trim(),
-                  link: job.link,
-                  priority: 'medium',
-                  category: 'opportunity'
-                })
-              );
+              notifyOnlyNewJobs(jobs.slice(0, 20), 5);
+            }}
+            onGoToResumeWithJob={(jobDescription) => {
+              setResumeJobDescription(jobDescription);
+              guardedSetView(ViewState.RESUME);
             }}
           />
         )}
+        </Suspense>
       </main>
 
       <footer className="bg-slate-950/80 border-t border-cyan-900/60 text-slate-400 py-6 text-center text-sm mt-auto">
-        <p>© 2026 KBV OS. Built for startup-scale career intelligence.</p>
+        <p>(c) 2026 KBV OS. Built for startup-scale career intelligence.</p>
       </footer>
     </div>
   );
 };
 
 export default App;
+
+
+
+
+
+
+
 
 

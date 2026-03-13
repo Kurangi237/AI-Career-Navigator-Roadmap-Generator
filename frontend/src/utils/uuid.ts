@@ -1,4 +1,4 @@
-export const uuidv4 = (): string => {
+﻿export const uuidv4 = (): string => {
   try {
     const rnd = (globalThis as any)?.crypto?.randomUUID;
     if (typeof rnd === 'function') return rnd();
@@ -13,3 +13,4 @@ export const uuidv4 = (): string => {
     return v.toString(16);
   });
 };
+

@@ -142,9 +142,8 @@ export const listProblemSummaries = (opts: {
   query?: string;
   page?: number;
   pageSize?: number;
-  allowHard?: boolean;
 }): { total: number; items: ProblemSummary[] } => {
-  const { difficulty = 'All', query = '', page = 1, pageSize = 50, allowHard = true } = opts;
+  const { difficulty = 'All', query = '', page = 1, pageSize = 50 } = opts;
   const normalized = query.trim().toLowerCase();
 
   const all: ProblemSummary[] = [];
@@ -276,4 +275,5 @@ export const generateDailySheetFromWeakTopics = (
   }
   return out;
 };
+
 

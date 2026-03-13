@@ -174,7 +174,7 @@ export const updateSubmissionStatus = async (
   }
 };
 
-export const listMentorReviews = async (user: UserProfile): Promise<MentorReview[]> => {
+export const listMentorReviews = async (_user: UserProfile): Promise<MentorReview[]> => {
   const local = getReviewsLocal();
   if (!isSupabase || !supabase) return local;
 
@@ -253,4 +253,5 @@ export const getAdaptivePlanSnapshot = (userEmail: string): AdaptivePracticeItem
   const history = readJson<Record<string, AdaptivePracticeItem[]>>(LOCAL_KEYS.adaptive, {});
   return history[userEmail] || [];
 };
+
 

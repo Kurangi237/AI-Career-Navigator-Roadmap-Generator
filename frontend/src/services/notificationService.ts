@@ -1,4 +1,4 @@
-import { Notification } from '@shared/types';
+﻿import { Notification } from '@shared/types';
 
 let supabase: any = null;
 let isSupabase = false;
@@ -205,3 +205,4 @@ export default {
   clearAllRemote,
   subscribeNotifications,
 };
+

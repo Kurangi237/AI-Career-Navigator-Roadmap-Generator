@@ -1,4 +1,4 @@
-import { CodingTestCase, JudgeResponse } from '@shared/types';
+﻿import { CodingTestCase, JudgeResponse } from '@shared/types';
 
 const API_BASE_URL = ((import.meta as any).env?.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const getApiUrl = (path: string) => `${API_BASE_URL}${path}`;
@@ -48,3 +48,4 @@ export const getQueuedJudgeStatus = async (jobId: string): Promise<any> => {
   if (!resp.ok) throw new Error(`Queue status failed (${resp.status})`);
   return resp.json();
 };
+

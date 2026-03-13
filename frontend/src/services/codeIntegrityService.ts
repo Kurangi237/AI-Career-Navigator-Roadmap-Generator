@@ -94,3 +94,4 @@ export const compareLastTwo = (problemId: string, userEmail: string): string[] =
   return simpleDiff(rows[1].code, rows[0].code);
 };
 
+

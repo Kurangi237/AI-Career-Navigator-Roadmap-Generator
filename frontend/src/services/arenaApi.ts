@@ -1,4 +1,4 @@
-import type { CodingProblem } from '@shared/types';
+﻿import type { CodingProblem } from '@shared/types';
 import { getProblemById, listProblemSummaries } from './problemLibraryService';
 
 const API_BASE_URL = ((import.meta as any).env?.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -47,7 +47,6 @@ const fallbackListProblems = (params: {
     pageSize: params.pageSize,
     query: params.q,
     difficulty: params.difficulty,
-    allowHard: true,
   });
 
   const items: ArenaProblemSummary[] = data.items.map((x) => ({
@@ -136,3 +135,4 @@ export const listArenaContests = async (): Promise<ArenaContestSummary[]> => {
     return [];
   }
 };
+

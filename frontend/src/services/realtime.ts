@@ -1,4 +1,4 @@
-type CursorPayload = {
+﻿type CursorPayload = {
   userId: string;
   userName: string;
   line: number;
@@ -39,3 +39,4 @@ class RealtimeService {
 
 export const realtimeService = new RealtimeService();
 export default realtimeService;
+

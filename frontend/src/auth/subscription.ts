@@ -1,4 +1,4 @@
-import { SubscriptionPlan, ViewState, UserRole } from '@shared/types';
+﻿import { SubscriptionPlan, ViewState, UserRole } from '@shared/types';
 
 export const planViewAccess: Record<SubscriptionPlan, ViewState[]> = {
   starter: [
@@ -8,6 +8,8 @@ export const planViewAccess: Record<SubscriptionPlan, ViewState[]> = {
     ViewState.COURSES,
     ViewState.JOB_SEARCH,
     ViewState.PROFILE,
+    ViewState.PORTFOLIO,
+    ViewState.ANALYTICS,
   ],
   pro: [
     ViewState.DASHBOARD,
@@ -19,6 +21,8 @@ export const planViewAccess: Record<SubscriptionPlan, ViewState[]> = {
     ViewState.CHAT,
     ViewState.RESUME,
     ViewState.SAVED_ITEMS,
+    ViewState.PORTFOLIO,
+    ViewState.ANALYTICS,
   ],
   business: [
     ViewState.DASHBOARD,
@@ -31,6 +35,8 @@ export const planViewAccess: Record<SubscriptionPlan, ViewState[]> = {
     ViewState.RESUME,
     ViewState.SAVED_ITEMS,
     ViewState.ROLE_INTEL,
+    ViewState.PORTFOLIO,
+    ViewState.ANALYTICS,
   ],
 };
 
@@ -38,7 +44,8 @@ export const canAccessByPlan = (plan: SubscriptionPlan, view: ViewState): boolea
   return planViewAccess[plan]?.includes(view) ?? false;
 };
 
-export const canAccessFeature = (role: UserRole, plan: SubscriptionPlan, view: ViewState): boolean => {
+export const canAccessFeature = (_role: UserRole, _plan: SubscriptionPlan, _view: ViewState): boolean => {
   // Project is fully free for public access.
   return true;
 };
+

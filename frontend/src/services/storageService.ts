@@ -1,11 +1,39 @@
-import { RoadmapResponse, Course, SavedRoadmap, SavedCourse, SavedResumeScan, SkillAnalysisResponse } from '@shared/types';
+﻿import { RoadmapResponse, Course, SavedRoadmap, SavedCourse, SavedResumeScan, SkillAnalysisResponse } from '@shared/types';
 
 const KEYS = {
   ROADMAPS: 'AI_Career_saved_roadmaps',
   COURSES: 'AI_Career_saved_courses',
   RESUME_SCANS: 'AI_Career_saved_resume_scans',
   RESUME_DRAFTS: 'AI_Career_saved_resume_drafts',
+  SAVED_JOBS: 'AI_Career_saved_jobs',
 };
+
+export type JobApplicationStage =
+  | 'saved'
+  | 'applied'
+  | 'aptitude_round'
+  | 'technical_round'
+  | 'interview_round'
+  | 'offer_letter';
+
+export interface SavedJob {
+  id: string;
+  jobId: string;
+  title: string;
+  company: string;
+  location: string;
+  country: string;
+  source: string;
+  link: string;
+  postedAt: string;
+  description: string;
+  employmentType?: string;
+  salary?: string;
+  stage: JobApplicationStage;
+  notes?: string;
+  savedAt: number;
+  updatedAt: number;
+}
 
 export interface ResumeExperience {
   role: string;
@@ -237,3 +265,55 @@ export const deleteSavedResumeDraft = (id: string): void => {
   const next = getSavedResumeDrafts().filter((x) => x.id !== id);
   localStorage.setItem(KEYS.RESUME_DRAFTS, JSON.stringify(next));
 };
+
+// --- Saved Jobs / Tracking ---
+export const getSavedJobs = (): SavedJob[] => {
+  const raw = localStorage.getItem(KEYS.SAVED_JOBS);
+  return raw ? JSON.parse(raw) : [];
+};
+
+export const saveJobToStorage = (
+  job: Omit<SavedJob, 'id' | 'stage' | 'savedAt' | 'updatedAt'> & {
+    stage?: JobApplicationStage;
+    id?: string;
+  }
+): SavedJob => {
+  const existing = getSavedJobs();
+  const now = Date.now();
+  const same = existing.find((x) => x.jobId === job.jobId || x.link === job.link);
+
+  const next: SavedJob = {
+    id: same?.id || job.id || `${now}-${Math.random().toString(36).slice(2, 8)}`,
+    stage: job.stage || same?.stage || 'saved',
+    savedAt: same?.savedAt || now,
+    updatedAt: now,
+    ...job,
+  };
+
+  const updated = [next, ...existing.filter((x) => x.id !== next.id)].slice(0, 300);
+  localStorage.setItem(KEYS.SAVED_JOBS, JSON.stringify(updated));
+  return next;
+};
+
+export const deleteSavedJob = (id: string): void => {
+  const next = getSavedJobs().filter((x) => x.id !== id);
+  localStorage.setItem(KEYS.SAVED_JOBS, JSON.stringify(next));
+};
+
+export const updateSavedJobStage = (id: string, stage: JobApplicationStage, notes?: string): SavedJob | null => {
+  const existing = getSavedJobs();
+  const target = existing.find((x) => x.id === id);
+  if (!target) return null;
+
+  const updatedJob: SavedJob = {
+    ...target,
+    stage,
+    notes: notes ?? target.notes,
+    updatedAt: Date.now(),
+  };
+
+  const updated = [updatedJob, ...existing.filter((x) => x.id !== id)];
+  localStorage.setItem(KEYS.SAVED_JOBS, JSON.stringify(updated));
+  return updatedJob;
+};
+

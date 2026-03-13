@@ -9,7 +9,9 @@ export enum ViewState {
   SAVED_ITEMS = 'SAVED_ITEMS',
   CODING_ARENA = 'CODING_ARENA',
   JOB_SEARCH = 'JOB_SEARCH',
-  PROFILE = 'PROFILE'
+  PROFILE = 'PROFILE',
+  PORTFOLIO = 'PORTFOLIO',
+  ANALYTICS = 'ANALYTICS'
 }
 
 export type UserRole = 'admin' | 'mentor' | 'student';

@@ -1,4 +1,4 @@
-declare module '@monaco-editor/react';
+﻿declare module '@monaco-editor/react';
 declare module 'monaco-editor';
 declare module 'react-markdown';
 declare module 'react-syntax-highlighter';
@@ -10,3 +10,4 @@ declare namespace React {
     jsx?: boolean;
   }
 }
+

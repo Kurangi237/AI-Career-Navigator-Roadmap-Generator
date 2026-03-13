@@ -1,4 +1,4 @@
-// Switch to serverless endpoints so keys stay secret on Vercel
+﻿// Switch to serverless endpoints so keys stay secret on Vercel
 import { AdaptivePracticeItem, RoadmapResponse, CourseResponse, SkillAnalysisResponse, JobRoleResponse } from '@shared/types';
 
 const API_TIMEOUT_MS = 20000;
@@ -88,3 +88,4 @@ export const getAdaptivePracticePlan = async (
   const data = await callApi('adaptive-practice', { targetRole, weakTopics, recentSubmissions });
   return Array.isArray(data?.items) ? data.items : [];
 };
+
