@@ -100,6 +100,14 @@ const sourceFromUrl = (url: string) => {
   if (u.includes('naukri')) return 'Naukri';
   if (u.includes('foundit') || u.includes('monsterindia')) return 'Foundit';
   if (u.includes('internshala')) return 'Internshala';
+  if (u.includes('apna.co')) return 'Apna';
+  if (u.includes('workindia')) return 'WorkIndia';
+  if (u.includes('shine.com')) return 'Shine';
+  if (u.includes('freshersworld')) return 'Freshersworld';
+  if (u.includes('cutshort')) return 'Cutshort';
+  if (u.includes('hirist')) return 'Hirist';
+  if (u.includes('iimjobs')) return 'IIMJobs';
+  if (u.includes('timesjobs')) return 'TimesJobs';
   if (u.includes('superset') || u.includes('joinsuperset')) return 'Superset';
   if (u.includes('glassdoor')) return 'Glassdoor';
   if (u.includes('ziprecruiter')) return 'ZipRecruiter';
@@ -112,6 +120,23 @@ const sourceFromUrl = (url: string) => {
   if (u.includes('arbeitnow')) return 'Arbeitnow';
   return 'JSearch';
 };
+
+const INDIA_PORTALS = [
+  { name: 'Naukri', url: 'https://www.naukri.com' },
+  { name: 'Foundit', url: 'https://www.foundit.in' },
+  { name: 'Indeed', url: 'https://in.indeed.com' },
+  { name: 'LinkedIn', url: 'https://www.linkedin.com/jobs' },
+  { name: 'Internshala', url: 'https://internshala.com/jobs' },
+  { name: 'Apna', url: 'https://apna.co/jobs' },
+  { name: 'WorkIndia', url: 'https://www.workindia.in/jobs' },
+  { name: 'Shine', url: 'https://www.shine.com/job-search' },
+  { name: 'Freshersworld', url: 'https://www.freshersworld.com/jobs' },
+  { name: 'Cutshort', url: 'https://cutshort.io/jobs' },
+  { name: 'Superset', url: 'https://app.joinsuperset.com/jobs' },
+  { name: 'TimesJobs', url: 'https://www.timesjobs.com/candidate/job-search.html' },
+  { name: 'Hirist', url: 'https://www.hirist.tech' },
+  { name: 'IIMJobs', url: 'https://www.iimjobs.com' },
+];
 
 const dedupe = (jobs: Job[]) => {
   const seen = new Set<string>();
@@ -281,6 +306,76 @@ const fromJSearch = async (query: string, country: string): Promise<Job[]> => {
   })).slice(0, 2200);
 };
 
+const fromSerpApi = async (query: string, country: string): Promise<Job[]> => {
+  const key = process.env.SERPAPI_KEY || '';
+  if (!key) return [];
+  const locations: Record<string, string[]> = {
+    All: ['India', 'United States', 'United Kingdom', 'Australia', 'Dubai'],
+    India: ['India'],
+    USA: ['United States'],
+    UK: ['United Kingdom'],
+    Australia: ['Australia'],
+    Dubai: ['Dubai'],
+  };
+  const locs = locations[country] || ['India'];
+  const out: Job[] = [];
+
+  for (const loc of locs) {
+    for (const start of [0, 10, 20]) {
+      const data: any = await safeFetch(
+        `https://serpapi.com/search.json?engine=google_jobs&q=${encodeURIComponent(query)}&location=${encodeURIComponent(loc)}&hl=en&start=${start}&api_key=${encodeURIComponent(key)}`
+      );
+      const rows = Array.isArray(data?.jobs_results) ? data.jobs_results : [];
+      for (const j of rows) {
+        const apply = Array.isArray(j?.apply_options) && j.apply_options.length ? j.apply_options[0]?.link : '';
+        const link = apply || j?.related_links?.[0]?.link || j?.share_link || '#';
+        const locationText = j?.location || loc;
+        const desc = clean(j?.description || '');
+        const viaTag = String(j?.via || '').trim();
+        const derivedSource = sourceFromUrl(link);
+        const source = viaTag && viaTag.length < 40 ? viaTag : derivedSource;
+        out.push({
+          id: `serpapi-${j.job_id || link}`,
+          title: j?.title || 'Role',
+          company: j?.company_name || 'Company',
+          location: locationText,
+          country: normalizeCountry(locationText, loc),
+          source,
+          link,
+          posted_at: new Date().toISOString(),
+          tags: Array.isArray(j?.extensions) ? j.extensions.slice(0, 6) : [],
+          description: desc,
+          employment_type: '',
+          salary: '',
+          visa_sponsorship: inferVisa(desc),
+        });
+      }
+      if (!rows.length) break;
+    }
+  }
+
+  return dedupe(out).slice(0, 900);
+};
+
+const fromIndianPortalBridge = async (query: string, country: string): Promise<Job[]> => {
+  if (country !== 'India' && country !== 'All') return [];
+  return INDIA_PORTALS.map((p, idx) => ({
+    id: `india-portal-${idx}`,
+    title: `${query} jobs on ${p.name}`,
+    company: `${p.name} Listings`,
+    location: 'India',
+    country: 'India',
+    source: p.name,
+    link: `${p.url}${p.url.includes('?') ? '&' : '?'}q=${encodeURIComponent(query)}`,
+    posted_at: new Date().toISOString(),
+    tags: ['india', 'portal', 'direct'],
+    description: `Direct India portal search route for ${query} on ${p.name}.`,
+    employment_type: '',
+    salary: '',
+    visa_sponsorship: 'Unknown',
+  }));
+};
+
 const fallbackJobs = (country: string, query: string): Job[] => {
   const c = country === 'All' ? 'Global' : country;
   const title = `${query || 'Jobs'} - ${c} Openings`;
@@ -305,11 +400,13 @@ export default async function handler(req: any, res: any) {
     const runs = await Promise.all([
       runProvider('JSearch', () => fromJSearch(query, country)),
       runProvider('Adzuna', () => fromAdzuna(query, country)),
+      runProvider('SerpAPI', () => fromSerpApi(query, country)),
       runProvider('Arbeitnow', () => fromArbeitnow(query)),
       runProvider('Remotive', () => fromRemotive(query)),
       runProvider('Jobicy', () => fromJobicy(query)),
       runProvider('TheMuse', () => fromTheMuse(query)),
       runProvider('RemoteOK', () => fromRemoteOK(query)),
+      runProvider('IndiaPortals', () => fromIndianPortalBridge(query, country)),
     ]);
     const providers = runs.map((r) => r.meta);
 
@@ -338,6 +435,7 @@ export default async function handler(req: any, res: any) {
     const warnings: string[] = [];
     if (!process.env.RAPIDAPI_JSEARCH_KEY) warnings.push('LinkedIn/Indeed/Naukri/Foundit ingestion needs RAPIDAPI_JSEARCH_KEY');
     if (!process.env.ADZUNA_APP_ID || !process.env.ADZUNA_APP_KEY) warnings.push('Adzuna keys missing: set ADZUNA_APP_ID and ADZUNA_APP_KEY');
+    if (!process.env.SERPAPI_KEY) warnings.push('SERPAPI_KEY missing: add to enable Google Jobs ingestion');
     if (allProvidersEmpty) warnings.push('External providers returned 0 results in this runtime window; fallback feed is shown.');
 
     return res.status(200).json({
@@ -355,4 +453,3 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: err?.message || 'server error' });
   }
 }
-
