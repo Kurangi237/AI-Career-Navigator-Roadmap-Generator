@@ -1,18 +1,5 @@
 {
   "buildCommand": "cd frontend && npm run build",
   "devCommand": "vercel dev",
-  "env": [
-    "GENAI_API_KEY",
-    "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET",
-    "STRIPE_PRICE_STARTER",
-    "STRIPE_PRICE_PRO",
-    "STRIPE_PRICE_BUSINESS",
-    "APP_BASE_URL"
-  ],
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  "outputDirectory": "frontend/dist"
 }

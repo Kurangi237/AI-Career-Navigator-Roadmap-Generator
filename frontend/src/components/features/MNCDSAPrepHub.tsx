@@ -286,7 +286,7 @@ const EXTRA_COMPANY_SEEDS: Array<{ name: string; domain: string; category: Compa
   { name: 'Pinecone', domain: 'pinecone.io', category: 'AI' },
   { name: 'MongoDB Atlas', domain: 'mongodb.com', category: 'Enterprise' },
   { name: 'ClickHouse', domain: 'clickhouse.com', category: 'Enterprise' },
-  { name: 'Supabase', domain: 'supabase.com', category: 'Startup' },
+  { name: 'Snowflake', domain: 'snowflake.com', category: 'Enterprise' },
   { name: 'Vercel', domain: 'vercel.com', category: 'Startup' },
   { name: 'Netlify', domain: 'netlify.com', category: 'Startup' },
   { name: 'PlanetScale', domain: 'planetscale.com', category: 'Startup' },

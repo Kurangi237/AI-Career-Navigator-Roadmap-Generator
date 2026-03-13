@@ -16,8 +16,8 @@
   "dependencies": {
     "@google/genai": "^1.33.0",
     "@monaco-editor/react": "^4.7.0",
-    "@supabase/supabase-js": "^2.24.0",
     "@types/express": "^5.0.6",
+    "jszip": "^3.10.1",
     "monaco-editor": "^0.55.1",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

@@ -1,4 +1,4 @@
-﻿import { AdaptivePracticeItem, MentorReview, PracticeStats, PracticeSubmission, SubmissionStatus, UserProfile } from '@shared/types';
+import { AdaptivePracticeItem, MentorReview, PracticeStats, PracticeSubmission, SubmissionStatus, UserProfile } from '@shared/types';
 import { uuidv4 } from '../utils/uuid';
 
 const LOCAL_KEYS = {
@@ -6,9 +6,6 @@ const LOCAL_KEYS = {
   reviews: 'KBV_practice_reviews',
   adaptive: 'KBV_adaptive_history',
 };
-
-let supabase: any = null;
-const isSupabase = false;
 
 const readJson = <T>(key: string, fallback: T): T => {
   try {
@@ -79,29 +76,7 @@ const calcStatsFromSubmissions = (items: PracticeSubmission[]): PracticeStats =>
 };
 
 export const listSubmissions = async (user: UserProfile): Promise<PracticeSubmission[]> => {
-  const local = getSubmissionsLocal().filter((x) => x.userEmail === user.email);
-  if (!isSupabase || !supabase) return local;
-
-  try {
-    const qb = supabase.from('practice_submissions').select('*').order('created_at', { ascending: false });
-    if (user.role === 'student') qb.eq('user_email', user.email);
-    const { data, error } = await qb;
-    if (error) throw error;
-    const mapped: PracticeSubmission[] = (data || []).map((row: any) => ({
-      id: row.id,
-      userEmail: row.user_email,
-      problemTitle: row.problem_title,
-      topic: row.topic,
-      difficulty: row.difficulty,
-      status: row.status,
-      notes: row.notes || undefined,
-      createdAt: row.created_at,
-    }));
-    return mapped.filter((x) => (user.role === 'student' ? x.userEmail === user.email : true));
-  } catch (error) {
-    console.error('listSubmissions fallback to local', error);
-    return local;
-  }
+  return getSubmissionsLocal().filter((x) => x.userEmail === user.email || user.role !== 'student');
 };
 
 export const createSubmission = async (
@@ -117,24 +92,6 @@ export const createSubmission = async (
 
   const local = getSubmissionsLocal();
   writeJson(LOCAL_KEYS.submissions, [submission, ...local]);
-
-  if (isSupabase && supabase) {
-    try {
-      await supabase.from('practice_submissions').insert({
-        id: submission.id,
-        user_email: submission.userEmail,
-        problem_title: submission.problemTitle,
-        topic: submission.topic,
-        difficulty: submission.difficulty,
-        status: submission.status,
-        notes: submission.notes || null,
-        created_at: submission.createdAt,
-      });
-    } catch (error) {
-      console.error('createSubmission supabase insert failed', error);
-    }
-  }
-
   return submission;
 };
 
@@ -149,38 +106,10 @@ export const updateSubmissionStatus = async (
     return { ...item, status };
   });
   writeJson(LOCAL_KEYS.submissions, local);
-
-  if (isSupabase && supabase) {
-    try {
-      let qb = supabase.from('practice_submissions').update({ status }).eq('id', submissionId);
-      if (user.role === 'student') qb = qb.eq('user_email', user.email);
-      await qb;
-    } catch (error) {
-      console.error('updateSubmissionStatus supabase update failed', error);
-    }
-  }
 };
 
 export const listMentorReviews = async (_user: UserProfile): Promise<MentorReview[]> => {
-  const local = getReviewsLocal();
-  if (!isSupabase || !supabase) return local;
-
-  try {
-    const { data, error } = await supabase.from('mentor_reviews').select('*').order('created_at', { ascending: false });
-    if (error) throw error;
-    return (data || []).map((row: any) => ({
-      id: row.id,
-      submissionId: row.submission_id,
-      reviewerEmail: row.reviewer_email,
-      reviewerRole: row.reviewer_role,
-      comment: row.comment,
-      rating: row.rating,
-      createdAt: row.created_at,
-    }));
-  } catch (error) {
-    console.error('listMentorReviews fallback to local', error);
-    return local;
-  }
+  return getReviewsLocal();
 };
 
 export const createMentorReview = async (
@@ -200,22 +129,6 @@ export const createMentorReview = async (
   };
   const local = getReviewsLocal();
   writeJson(LOCAL_KEYS.reviews, [review, ...local]);
-
-  if (isSupabase && supabase) {
-    try {
-      await supabase.from('mentor_reviews').insert({
-        id: review.id,
-        submission_id: review.submissionId,
-        reviewer_email: review.reviewerEmail,
-        reviewer_role: review.reviewerRole,
-        comment: review.comment,
-        rating: review.rating,
-        created_at: review.createdAt,
-      });
-    } catch (error) {
-      console.error('createMentorReview supabase insert failed', error);
-    }
-  }
   return review;
 };
 
@@ -240,5 +153,3 @@ export const getAdaptivePlanSnapshot = (userEmail: string): AdaptivePracticeItem
   const history = readJson<Record<string, AdaptivePracticeItem[]>>(LOCAL_KEYS.adaptive, {});
   return history[userEmail] || [];
 };
-
-

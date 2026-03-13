@@ -47,7 +47,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # PostgreSQL Database (optional - Supabase remote DB used primarily)
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     environment:
@@ -58,7 +58,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./supabase:/docker-entrypoint-initdb.d:ro
     networks:
       - mnc-dsa-prep
     healthcheck:
@@ -78,9 +77,6 @@ services:
       - PORT=3004
       - REDIS_URL=redis://redis:6379
       - DATABASE_URL=postgresql://mnc_dsa_prep:${POSTGRES_PASSWORD:-dev_password}@postgres:5432/mnc_dsa_prep_db
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
       - GENAI_API_KEY=${GENAI_API_KEY}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - JUDGE_USE_DOCKER=true
@@ -113,8 +109,6 @@ services:
       context: .
       dockerfile: docker/Dockerfile.frontend
     environment:
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
       - VITE_API_BASE_URL=http://localhost:3004
     ports:
       - "3005:5173"

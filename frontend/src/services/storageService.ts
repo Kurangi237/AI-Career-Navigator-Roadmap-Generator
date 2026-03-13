@@ -1,4 +1,4 @@
-﻿import { RoadmapResponse, Course, SavedRoadmap, SavedCourse, SavedResumeScan, SkillAnalysisResponse } from '@shared/types';
+import { RoadmapResponse, Course, SavedRoadmap, SavedCourse, SavedResumeScan, SkillAnalysisResponse } from '@shared/types';
 
 const KEYS = {
   ROADMAPS: 'AI_Career_saved_roadmaps',
@@ -77,70 +77,26 @@ export interface ResumeDraft {
   updatedAt: number;
 }
 
-let supabase: any = null;
-const isSupabase = false;
-
-// --- Roadmap Operations ---
-
 export const saveRoadmapToStorage = async (roadmap: RoadmapResponse): Promise<void> => {
   const savedItem: SavedRoadmap = {
     ...roadmap,
     id: Date.now().toString(),
     timestamp: Date.now()
   };
-
-  if (!isSupabase || !supabase) {
-    const existing = getSavedRoadmaps();
-    const updated = [savedItem, ...existing];
-    localStorage.setItem(KEYS.ROADMAPS, JSON.stringify(updated));
-    return;
-  }
-
-  try {
-    await supabase.from('roadmaps').insert({
-      id: savedItem.id,
-      role: savedItem.role,
-      duration_weeks: (savedItem as any).duration_weeks || (savedItem as any).weeks || 0,
-      weekly_plan: JSON.stringify((savedItem as any).weekly_plan || (savedItem as any).plan || []),
-      timestamp: savedItem.timestamp,
-      raw: JSON.stringify(savedItem),
-    });
-  } catch (e) {
-    console.error('Supabase saveRoadmap error', e);
-    // fallback to local
-    const existing = getSavedRoadmaps();
-    const updated = [savedItem, ...existing];
-    localStorage.setItem(KEYS.ROADMAPS, JSON.stringify(updated));
-  }
+  const existing = getSavedRoadmaps();
+  localStorage.setItem(KEYS.ROADMAPS, JSON.stringify([savedItem, ...existing]));
 };
 
 export const getSavedRoadmaps = (): SavedRoadmap[] => {
-  if (!isSupabase || !supabase) {
-    const data = localStorage.getItem(KEYS.ROADMAPS);
-    return data ? JSON.parse(data) : [];
-  }
-
-  // For simplicity, return localStorage copy if remote fetch isn't desired synchronously.
   const data = localStorage.getItem(KEYS.ROADMAPS);
   return data ? JSON.parse(data) : [];
 };
 
 export const deleteSavedRoadmap = async (id: string): Promise<void> => {
-  if (!isSupabase || !supabase) {
-    const existing = getSavedRoadmaps();
-    const updated = existing.filter(item => item.id !== id);
-    localStorage.setItem(KEYS.ROADMAPS, JSON.stringify(updated));
-    return;
-  }
-
-  try {
-    await supabase.from('roadmaps').delete().eq('id', id);
-  } catch (e) {
-    console.error('Supabase deleteSavedRoadmap error', e);
-  }
+  const existing = getSavedRoadmaps();
+  const updated = existing.filter((item) => item.id !== id);
+  localStorage.setItem(KEYS.ROADMAPS, JSON.stringify(updated));
 };
-
-// --- Course Operations ---
 
 export const saveCourseToStorage = async (course: Course): Promise<void> => {
   const savedItem: SavedCourse = {
@@ -149,62 +105,24 @@ export const saveCourseToStorage = async (course: Course): Promise<void> => {
     timestamp: Date.now()
   };
 
-  if (!isSupabase || !supabase) {
-    const existing = getSavedCourses();
-    const isDuplicate = existing.some(c => c.link === course.link && c.title === course.title);
-    if (!isDuplicate) {
-      const updated = [savedItem, ...existing];
-      localStorage.setItem(KEYS.COURSES, JSON.stringify(updated));
-    }
-    return;
-  }
-
-  try {
-    await supabase.from('courses').insert({
-      id: savedItem.id,
-      title: savedItem.title,
-      platform: savedItem.platform || null,
-      link: savedItem.link,
-      timestamp: savedItem.timestamp,
-      raw: JSON.stringify(savedItem)
-    });
-  } catch (e) {
-    console.error('Supabase saveCourse error', e);
-    const existing = getSavedCourses();
-    const isDuplicate = existing.some(c => c.link === course.link && c.title === course.title);
-    if (!isDuplicate) {
-      const updated = [savedItem, ...existing];
-      localStorage.setItem(KEYS.COURSES, JSON.stringify(updated));
-    }
+  const existing = getSavedCourses();
+  const isDuplicate = existing.some((c) => c.link === course.link && c.title === course.title);
+  if (!isDuplicate) {
+    localStorage.setItem(KEYS.COURSES, JSON.stringify([savedItem, ...existing]));
   }
 };
 
 export const getSavedCourses = (): SavedCourse[] => {
-  if (!isSupabase || !supabase) {
-    const data = localStorage.getItem(KEYS.COURSES);
-    return data ? JSON.parse(data) : [];
-  }
-
   const data = localStorage.getItem(KEYS.COURSES);
   return data ? JSON.parse(data) : [];
 };
 
 export const deleteSavedCourse = async (id: string): Promise<void> => {
-  if (!isSupabase || !supabase) {
-    const existing = getSavedCourses();
-    const updated = existing.filter(item => item.id !== id);
-    localStorage.setItem(KEYS.COURSES, JSON.stringify(updated));
-    return;
-  }
-
-  try {
-    await supabase.from('courses').delete().eq('id', id);
-  } catch (e) {
-    console.error('Supabase deleteSavedCourse error', e);
-  }
+  const existing = getSavedCourses();
+  const updated = existing.filter((item) => item.id !== id);
+  localStorage.setItem(KEYS.COURSES, JSON.stringify(updated));
 };
 
-// --- Resume Scan Operations ---
 export const saveResumeScanToStorage = (fileName: string, analysis: SkillAnalysisResponse, jdProvided: boolean): SavedResumeScan => {
   const item: SavedResumeScan = {
     id: Date.now().toString() + Math.random().toString(36).slice(2, 10),
@@ -228,7 +146,6 @@ export const deleteSavedResumeScan = (id: string): void => {
   localStorage.setItem(KEYS.RESUME_SCANS, JSON.stringify(next));
 };
 
-// --- Resume Builder Drafts ---
 export const saveResumeDraftToStorage = (draft: Omit<ResumeDraft, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }): ResumeDraft => {
   const existing = getSavedResumeDrafts();
   const now = Date.now();
@@ -253,7 +170,6 @@ export const deleteSavedResumeDraft = (id: string): void => {
   localStorage.setItem(KEYS.RESUME_DRAFTS, JSON.stringify(next));
 };
 
-// --- Saved Jobs / Tracking ---
 export const getSavedJobs = (): SavedJob[] => {
   const raw = localStorage.getItem(KEYS.SAVED_JOBS);
   return raw ? JSON.parse(raw) : [];
@@ -303,4 +219,3 @@ export const updateSavedJobStage = (id: string, stage: JobApplicationStage, note
   localStorage.setItem(KEYS.SAVED_JOBS, JSON.stringify(updated));
   return updatedJob;
 };
-
